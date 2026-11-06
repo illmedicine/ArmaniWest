@@ -4,11 +4,11 @@ import { esc, $, $$ } from './core.js';
 export const LN = {
   patent: { name: 'Patent Leather', logo: 'assets/img/logo-w.png', bg: '#0b0b10', tag: 'Mirror-gloss. Kawaii goth. Hot pink and black.', slides: 5, acc: '#ff7ac8', url: 'merch-patent.html' },
   leather: { name: 'The Leather Line', logo: 'assets/img/logo-crest.png', bg: '#0b0b10', tag: 'Studded, distressed, cyber-dystopian.', slides: 5, acc: '#e0446f', url: 'merch-leather.html' },
-  plaid: { name: 'The Plaid Line', logo: 'assets/img/logo-plaid.jpg', bg: '#e5c2fa', tag: 'Goth schoolgirl. College-rave tartan.', slides: 3, acc: '#a98bff', url: 'merch-plaid.html' },
+  plaid: { name: 'The Plaid Line', logo: 'assets/img/logo-plaid-crest.png', bg: 'none', bare: true, tag: 'Goth schoolgirl. College-rave tartan.', slides: 3, acc: '#a98bff', url: 'merch-plaid.html' },
 };
 
 export function lineNav(active) {
-  return Object.entries(LN).map(([k, l]) => `<a href="${l.url}" style="--acc:${l.acc}" ${k === active ? 'class="on"' : ''}><img src="${l.logo}" alt="" style="background:${l.bg}">${l.name}</a>`).join('');
+  return Object.entries(LN).map(([k, l]) => `<a href="${l.url}" style="--acc:${l.acc}" ${k === active ? 'class="on"' : ''}><img src="${l.logo}" alt="" style="background:${l.bg}" class="${l.bare ? 'bare' : ''}">${l.name}</a>`).join('');
 }
 
 export function heroHTML(k, { compact = false, h1 = false } = {}) {
@@ -16,7 +16,7 @@ export function heroHTML(k, { compact = false, h1 = false } = {}) {
   return `<div class="mhero ${compact ? 'compact' : ''}" data-line="${k}" style="--acc:${l.acc}">
     <div class="mtrack">${Array.from({ length: l.slides }, (_, i) => `<div class="ms"><img src="assets/img/hero/${k}-${i + 1}.jpg" alt="${esc(l.name)} look ${i + 1}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>`).join('')}</div>
     <div class="mshade"></div>
-    <div class="mcopy"><span class="mbadge" style="background:${l.bg}"><img src="${l.logo}" alt="${esc(l.name)} logo"></span><${T}>${esc(l.name)}</${T}><p>${esc(l.tag)}</p>${compact ? '' : `<a class="btn primary" href="${l.url}">Shop the line</a>`}</div>
+    <div class="mcopy"><span class="mbadge ${l.bare ? 'bare' : ''}" style="background:${l.bg}"><img src="${l.logo}" alt="${esc(l.name)} logo"></span><${T}>${esc(l.name)}</${T}><p>${esc(l.tag)}</p>${compact ? '' : `<a class="btn primary" href="${l.url}">Shop the line</a>`}</div>
     <button class="marr prev" aria-label="Previous">&#8249;</button><button class="marr next" aria-label="Next">&#8250;</button>
     <div class="mdots"></div>
   </div>`;

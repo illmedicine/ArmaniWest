@@ -217,3 +217,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .mtrack{overflow:hidden!important;scroll-snap-type:none!important;will-change:transform}
 .mbadge img{border-radius:50%}
 .mhero{touch-action:pan-y}
+
+.mbadge.bare{background:none!important;box-shadow:none;padding:0;border-radius:0;width:clamp(110px,12vw,160px);height:clamp(110px,12vw,160px);filter:drop-shadow(0 6px 24px rgba(0,0,0,.6))}
+.mbadge.bare img{border-radius:0}
+.mhero.compact .mbadge.bare{width:clamp(84px,9vw,118px);height:clamp(84px,9vw,118px)}
+.linenav img.bare{background:none!important;border-radius:0;padding:0;width:28px;height:28px}
