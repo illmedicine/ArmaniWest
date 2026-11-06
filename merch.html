@@ -15,76 +15,16 @@
   <div class="wrap merch-top">
     <p class="eyebrow">Maniac U. · Est. LA</p>
     <h1 class="sec-t">The <i>collections</i></h1>
-    <div class="chips" id="chips"></div>
   </div>
   <div id="lines"></div>
-  <div class="wrap"><p class="note" style="margin:10px 0 40px">Checkout opens on a secure store page. This site never handles card details.</p></div>
 </main>
 <script type="module">
-import { boot, store, esc, cfg, $, $$ } from './assets/js/core.js';
-import { mountViewer } from './assets/js/garments.js';
+import { boot, $ } from './assets/js/core.js';
+import { LN, lineNav, heroHTML, sliders } from './assets/js/merchlib.js';
 await boot('merch');
-const LN = {
-  patent: { name: 'Patent Leather', logo: 'assets/img/logo-patent.svg', tag: 'Mirror-gloss. Kawaii goth. Hot pink and black.', slides: 5, acc: '#ff7ac8' },
-  leather: { name: 'The Leather Line', logo: 'assets/img/logo-crest.png', tag: 'Studded, distressed, cyber-dystopian.', slides: 5, acc: '#e0446f' },
-  plaid: { name: 'The Plaid Line', logo: 'assets/img/logo-plaid.svg', tag: 'Goth schoolgirl. College-rave tartan.', slides: 3, acc: '#a98bff' },
-};
-const items = (await store.list('merch')).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
-const F = { who: 'all', cat: 'all' };
-const chip = (k, vals) => `<div class="chipset">${vals.map(([v, t]) => `<button class="chip ${F[k] === v ? 'on' : ''}" data-k="${k}" data-v="${v}">${t}</button>`).join('')}</div>`;
-$('#linenav').innerHTML = Object.entries(LN).map(([k, l]) => `<a href="#${k}" style="--acc:${l.acc}"><img src="${l.logo}" alt="">${l.name}</a>`).join('');
-$('#lines').innerHTML = Object.entries(LN).map(([k, l]) => `
-<section class="mline" id="${k}" style="--acc:${l.acc}">
-  <div class="mhero" data-line="${k}">
-    <div class="mtrack">${Array.from({ length: l.slides }, (_, i) => `<div class="ms"><img src="assets/img/hero/${k}-${i + 1}.jpg" alt="${esc(l.name)} look ${i + 1}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>`).join('')}</div>
-    <div class="mshade"></div>
-    <div class="mcopy"><span class="mbadge"><img src="${l.logo}" alt="${esc(l.name)} logo"></span><h2>${esc(l.name)}</h2><p>${esc(l.tag)}</p><a class="btn primary" href="#grid-${k}">Shop the line</a></div>
-    <button class="marr prev" aria-label="Previous">&#8249;</button><button class="marr next" aria-label="Next">&#8250;</button>
-    <div class="mdots"></div>
-  </div>
-  <div class="wrap"><div class="grid g4" id="grid-${k}"></div></div>
-</section>`).join('');
-
-function sliders() {
-  $$('.mhero').forEach(h => {
-    const tr = $('.mtrack', h), n = tr.children.length, dots = $('.mdots', h);
-    dots.innerHTML = Array.from({ length: n }, (_, i) => `<button aria-label="Slide ${i + 1}"></button>`).join('');
-    const w = () => tr.children[0].getBoundingClientRect().width;
-    const go = i => tr.scrollTo({ left: i * w(), behavior: 'smooth' });
-    const cur = () => Math.round(tr.scrollLeft / w());
-    const upd = () => $$('button', dots).forEach((b, i) => b.classList.toggle('on', i === cur()));
-    tr.addEventListener('scroll', () => requestAnimationFrame(upd)); upd();
-    const vis = () => Math.max(1, Math.round(tr.clientWidth / w()));
-    $('.prev', h).onclick = () => go(Math.max(0, cur() - 1));
-    $('.next', h).onclick = () => go(cur() + vis() >= n ? 0 : cur() + 1);
-    dots.onclick = e => { const i = [...dots.children].indexOf(e.target.closest('button')); if (i >= 0) go(i); };
-    let hold = false; h.addEventListener('pointerenter', () => hold = true); h.addEventListener('pointerleave', () => hold = false); h.addEventListener('touchstart', () => hold = true, { passive: true });
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => { if (!hold && !document.hidden) go(cur() + vis() >= n ? 0 : cur() + 1); }, 5200);
-  });
-}
+$('#linenav').innerHTML = lineNav();
+$('#lines').innerHTML = Object.keys(LN).map(k => `<section class="mline">${heroHTML(k)}</section>`).join('');
 sliders();
-
-const lg = s => s.replace('/merch/', '/merch/lg/');
-function lightbox(m) {
-  const views = [m.image && ['Front', m.image], m.imageBack && ['Back', m.imageBack]].filter(Boolean); let i = 0;
-  const lb = document.createElement('div'); lb.className = 'lb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-label', m.name);
-  const draw = () => { lb.innerHTML = `<button class="lb-x" aria-label="Close">&times;</button><div class="lb-main">${views.length > 1 ? '<button class="lb-a l" aria-label="Previous view">&#8249;</button>' : ''}<img src="${esc(lg(views[i][1]))}" alt="${esc(m.name)} ${views[i][0]}">${views.length > 1 ? '<button class="lb-a r" aria-label="Next view">&#8250;</button>' : ''}</div><div class="lb-cap"><b>${esc(m.name)}</b> <span>${esc(m.price)}</span>${views.length > 1 ? `<div class="lb-th">${views.map((v, k) => `<button class="${k === i ? 'on' : ''}" data-k="${k}"><img src="${esc(v[1])}" alt="${v[0]}"></button>`).join('')}</div>` : ''}</div>`; };
-  const close = () => { lb.remove(); document.removeEventListener('keydown', key); document.body.style.overflow = ''; };
-  const key = e => { if (e.key === 'Escape') close(); if (views.length > 1 && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { i = (i + 1) % views.length; draw(); } };
-  lb.onclick = e => { if (e.target.closest('.lb-x') || e.target === lb || e.target.classList.contains('lb-main')) return close(); const a = e.target.closest('.lb-a'); if (a) { i = (i + (a.classList.contains('r') ? 1 : -1) + views.length) % views.length; draw(); return; } const t = e.target.closest('[data-k]'); if (t) { i = +t.dataset.k; draw(); } };
-  document.addEventListener('keydown', key); document.body.style.overflow = 'hidden'; draw(); document.body.appendChild(lb);
-}
-
-function draw() {
-  $('#chips').innerHTML = chip('who', [['all', 'Everyone'], ['girls', 'Girls'], ['guys', 'Guys']]) + chip('cat', [['all', 'Everything'], ['Outerwear', 'Jackets'], ['Tops', 'Tops & hoodies'], ['Headwear', 'Beanies'], ['Bottoms', 'Skirts'], ['Shoes', 'Boots'], ['Accessories', 'Accessories']]);
-  for (const k of Object.keys(LN)) {
-    const list = items.filter(m => m.line === k && (F.who === 'all' || m.for === F.who || m.for === 'unisex') && (F.cat === 'all' || m.cat === F.cat));
-    $('#grid-' + k).innerHTML = list.map(m => `<div class="card prod" data-id="${esc(m.id)}"><div class="pic3d"></div><button class="zoom" aria-label="View larger" title="View larger"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21M10.5 8v5M8 10.5h5"/></svg></button><p class="eyebrow" style="margin:6px 0 0">${m.for === 'unisex' ? 'Unisex' : m.for === 'girls' ? 'Girls' : m.for === 'guys' ? 'Guys' : ''}</p><h3>${esc(m.name)}</h3><p class="meta">${esc(m.blurb || '')}</p><div class="buyrow"><span class="price">${esc(m.price)}</span>${(m.link || cfg.shopUrl) ? `<a class="btn sm primary" href="${esc(m.link || cfg.shopUrl)}" target="_blank" rel="noopener">Buy</a>` : ''}</div></div>`).join('') || '<p class="note">Nothing in this filter.</p>';
-  }
-  $$('.prod').forEach(c => { const m = items.find(x => x.id === c.dataset.id); mountViewer($('.pic3d', c), m); $('.pic3d', c).addEventListener('viewer:open', () => lightbox(m)); $('.zoom', c).onclick = () => lightbox(m); });
-}
-$('#chips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; F[b.dataset.k] = b.dataset.v; draw(); };
-draw();
 </script>
 </body>
 </html>

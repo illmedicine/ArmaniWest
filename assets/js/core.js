@@ -185,7 +185,7 @@ const NAV = [['index.html', 'Home'], ['about.html', 'About'], ['music.html', 'Mu
 
 export async function boot(page) {
   document.body.dataset.page = page;
-  const here = location.pathname.split('/').pop() || 'index.html';
+  let here = location.pathname.split('/').pop() || 'index.html'; if (here.startsWith('merch')) here = 'merch.html';
   const head = document.createElement('header'); head.className = 'nav';
   head.innerHTML = `<a href="index.html" class="brand"><img src="assets/img/logo-w-sm.png" alt="" width="30" height="30">ARMANI<span>WEST</span></a>
     <button class="burger" aria-label="Menu" aria-expanded="false">☰</button>
