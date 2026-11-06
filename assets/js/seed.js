@@ -29,6 +29,7 @@ export const seed = {
     v24: { type: 'clip', mp4: 'assets/video/clip-24.mp4', poster: 'assets/video/clip-24.jpg', caption: 'Clip 11', ts: now - 18 },
     p1: { src: 'assets/img/snap/snap-a.jpg', caption: 'Locker room', ts: now - 5 * day },
     p2: { src: 'assets/img/snap/snap-b.jpg', caption: 'Courtside', ts: now - 4 * day },
+    p7: { src: 'assets/img/snap/snap-c.jpg', caption: 'Snapchat', ts: now - 6 * day },
     p3: { src: 'assets/img/avatar.png', caption: 'On the turf', ts: now - 3 * day },
     p4: { src: 'assets/img/block-1.webp', caption: 'Portrait', ts: now - 2 * day },
     p5: { src: 'assets/img/ig-17877336342473842.jpg', caption: 'Instagram', ts: now - 1 * day },
