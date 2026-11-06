@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal | Armani West</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-noavatar>
+<main class="wrap" id="root"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script type="module">
+import { boot, store, auth, demo, cfg, esc, md, toast, compressImage, LS, $, $$ } from './assets/js/core.js';
+await boot('admin');
+const root = $('#root');
+
+/* ---- PIN (second gate after Google; real enforcement is in firestore.rules by Google account) ---- */
+async function sha(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+const tries = () => LS.get('aw:pinTries', { n: 0, until: 0 });
+
+function gate() {
+  if (!auth.user) { root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:28px">Armani's Portal</h1><p class="note">Private. Sign in with the authorized Google account.</p><button class="btn primary" id="go">Continue with Google</button></div>`; $('#go').onclick = () => auth.signIn(); return; }
+  if (!auth.isAdmin) { root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:24px">Not authorized</h1><p class="note">${esc(auth.user.email)} does not have portal access.</p><button class="btn" id="out">Sign out</button></div>`; $('#out').onclick = () => auth.signOut(); return; }
+  if (sessionStorage.getItem('aw:pinok') === auth.user.uid) return dash();
+  pinScreen();
+}
+async function pinScreen() {
+  let rec = null; try { rec = await store.get('adminpin', 'main'); } catch { root.innerHTML = '<div class="lock card"><p>Cannot reach the database. Check firestore.rules and that your Google account is listed as admin.</p></div>'; return; }
+  const first = !rec;
+  root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:26px">${first ? 'Create your PIN' : 'Enter PIN'}</h1><p class="note">${first ? 'Choose 4 to 8 digits. You will be asked each session.' : 'Second step after Google sign-in.'}</p>
+    <input class="pin" id="pin" inputmode="numeric" autocomplete="off" maxlength="8" type="password" aria-label="PIN">${first ? '<input class="pin" id="pin2" inputmode="numeric" maxlength="8" type="password" placeholder="repeat" style="margin-top:10px">' : ''}
+    <p id="err" class="note" style="color:#ff8a8a"></p><button class="btn primary" id="ok">${first ? 'Save PIN' : 'Unlock'}</button></div>`;
+  const go = async () => {
+    const t = tries(), err = $('#err'), pin = $('#pin').value;
+    if (Date.now() < t.until) { err.textContent = 'Too many tries. Wait a few minutes.'; return; }
+    if (!/^\d{4,8}$/.test(pin)) { err.textContent = 'Use 4 to 8 digits.'; return; }
+    if (first) { if (pin !== $('#pin2').value) { err.textContent = 'PINs do not match.'; return; } const salt = crypto.randomUUID(); await store.set('adminpin', 'main', { salt, hash: await sha(salt + pin) }, false); }
+    else if (await sha(rec.salt + pin) !== rec.hash) { t.n++; if (t.n >= 5) { t.until = Date.now() + 5 * 60000; t.n = 0; } LS.set('aw:pinTries', t); err.textContent = 'Wrong PIN.'; return; }
+    LS.set('aw:pinTries', { n: 0, until: 0 }); sessionStorage.setItem('aw:pinok', auth.user.uid); dash();
+  };
+  $('#ok').onclick = go; $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); }; $('#pin').focus();
+}
+
+/* ---- Dashboard shell ---- */
+const TABS = ['Overview', 'Media', 'Blog', 'Events', 'Merch', 'Requests', 'Site'];
+function dash(tab = 'Overview') {
+  root.innerHTML = `<p class="eyebrow">${demo ? 'DEMO MODE: data stays in this browser' : 'Signed in as ' + esc(auth.user.email)}</p><h1 class="sec-t">Portal</h1>
+    <div class="tabs">${TABS.map(t => `<button data-t="${t}" class="${t === tab ? 'on' : ''}">${t}</button>`).join('')}<button id="lockbtn">Lock</button></div><div id="pane"></div>`;
+  $$('.tabs [data-t]').forEach(b => b.onclick = () => dash(b.dataset.t));
+  $('#lockbtn').onclick = () => { sessionStorage.removeItem('aw:pinok'); gate(); };
+  ({ Overview, Media, Blog, Events, Merch, Requests, Site })[tab]($('#pane'));
+}
+const when = t => new Date(t).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+const loc = v => [v.city, v.region, v.country].filter(Boolean).join(', ') || 'Unknown';
+const field = (id, label, val = '', type = 'text', extra = '') => `<label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(val)}" ${extra}>`;
+
+/* ---- Overview: live visitors, locations, members ---- */
+async function Overview(p) {
+  const [vis, mem, pins, reqs, pres] = await Promise.all([store.list('visitors', { orderBy: 'ts', limit: 300 }), store.list('members'), store.list('pins'), store.list('requests'), store.list('presence', { where: ['ts', '>', Date.now() - 75000] })]);
+  const wk = vis.filter(v => v.ts > Date.now() - 7 * 864e5);
+  const byPlace = {}; vis.forEach(v => { if (v.lat != null) { const k = v.lat + ',' + v.lng; (byPlace[k] ||= { ...v, n: 0 }).n++; } });
+  p.innerHTML = `<div class="grid g4"><div class="card"><p class="meta">Online now</p><div class="stat">${pres.length}</div></div><div class="card"><p class="meta">Visits (7 days)</p><div class="stat">${wk.length}</div></div><div class="card"><p class="meta">Members</p><div class="stat">${mem.length}</div></div><div class="card"><p class="meta">New requests</p><div class="stat">${reqs.filter(r => r.status === 'new').length}</div></div></div>
+    <h2 class="sec-t" style="font-size:26px;margin:30px 0 14px">Where they are</h2><div id="adminmap"></div>
+    <h2 class="sec-t" style="font-size:26px;margin:30px 0 14px">Recent visitors</h2><div class="card" style="overflow:auto"><table><tr><th>When</th><th>Location</th><th>Page</th><th>Device</th><th>From</th><th>Member</th></tr>${vis.slice(0, 60).map(v => `<tr><td>${when(v.ts)}</td><td>${esc(loc(v))}</td><td>${esc(v.path)}</td><td>${esc(v.device)}</td><td>${esc(v.ref || 'direct')}</td><td>${v.member ? 'Yes' : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="note">No visits recorded yet. Only visitors who accepted tracking appear.</td></tr>'}</table></div>
+    <h2 class="sec-t" style="font-size:26px;margin:30px 0 14px">Members</h2><div class="card" style="overflow:auto"><table><tr><th>Name</th><th>Points</th><th>Joined</th><th>City (opted in)</th><th></th></tr>${mem.map(m => { const pin = pins.find(x => x.id === m.id); return `<tr><td>${esc(m.handle)}</td><td>${m.points}</td><td>${when(m.createdAt)}</td><td>${pin ? esc(pin.city) : '<span class="note">private</span>'}</td><td><button class="btn sm" data-bonus="${esc(m.id)}">+25 pts</button></td></tr>`; }).join('') || '<tr><td colspan="5" class="note">No members yet.</td></tr>'}</table></div>`;
+  const map = L.map('adminmap', { scrollWheelZoom: false }).setView([30, -40], 2);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '&copy; OpenStreetMap' }).addTo(map);
+  Object.values(byPlace).forEach(v => L.circleMarker([v.lat, v.lng], { radius: 6 + Math.min(14, v.n * 2), color: '#ff4fa3', fillColor: '#2de2c0', fillOpacity: .8 }).bindPopup(`<b>${esc(loc(v))}</b><br>${v.n} visit${v.n > 1 ? 's' : ''}`).addTo(map));
+  p.onclick = async e => { const id = e.target.dataset?.bonus; if (!id) return; const m = mem.find(x => x.id === id); await store.set('members', id, { points: m.points + 25 }); await store.set('board', id, { handle: m.handle, points: m.points + 25 }); toast('Added'); Overview(p); };
+}
+
+/* ---- Media ---- */
+async function Media(p) {
+  const items = await store.list('media', { orderBy: 'ts' });
+  p.innerHTML = `<div class="card"><h3>Upload from your device</h3><p class="note">Photos are resized automatically. They appear on the Media page and home page right away.</p><input type="file" id="files" accept="image/*" multiple><label for="cap">Caption (optional)</label><input id="cap"><p id="st" class="note"></p></div>
+    <div class="thumbs" style="margin-top:20px">${items.map(m => `<figure><img src="${esc(m.src)}" alt=""><button class="btn sm danger" data-del="${esc(m.id)}">✕</button><figcaption class="note">${esc(m.caption)}</figcaption></figure>`).join('')}</div>`;
+  $('#files').onchange = async e => {
+    const fs = [...e.target.files]; let n = 0;
+    for (const f of fs) { $('#st').textContent = `Uploading ${++n} of ${fs.length}...`; try { await store.add('media', { src: await compressImage(f), caption: $('#cap').value.trim() || f.name.replace(/\.\w+$/, ''), ts: Date.now() }); } catch (err) { toast(err.message || 'Upload failed'); break; } }
+    toast('Uploaded'); Media(p);
+  };
+  p.onclick = async e => { const id = e.target.dataset?.del; if (id && confirm('Delete this photo?')) { await store.remove('media', id); Media(p); } };
+}
+
+/* ---- Blog ---- */
+async function Blog(p, edit) {
+  const posts = await store.list('posts', { orderBy: 'ts' }); const e = edit ? posts.find(x => x.id === edit) : null;
+  p.innerHTML = `<div class="card"><h3>${e ? 'Edit post' : 'New post'}</h3>${field('t', 'Title', e?.title)}${field('ex', 'Short summary', e?.excerpt)}<label for="b">Body</label><textarea id="b" style="min-height:260px" placeholder="Write here. ## Heading, **bold**, *italic*, [link](https://...)">${esc(e?.body || '')}</textarea>
+    <label for="cv">Cover photo</label><input type="file" id="cv" accept="image/*"><p class="note">${e?.cover ? 'A cover is set. Choose a file to replace it.' : ''}</p>
+    <label><input type="checkbox" id="pub" style="width:auto" ${e?.published !== false ? 'checked' : ''}> Published</label>
+    <div class="cta"><button class="btn primary" id="save">${e ? 'Save changes' : 'Publish post'}</button>${e ? '<button class="btn" id="cancel">Cancel</button>' : ''}</div></div>
+    <h3 style="margin:26px 0 10px">Posts</h3>${posts.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.title)}</b> ${x.published ? '' : '<span class="note">(draft)</span>'}<div class="note">${when(x.ts)}</div></div><div><button class="btn sm" data-edit="${esc(x.id)}">Edit</button> <button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div></div>`).join('') || '<p class="note">No posts yet.</p>'}`;
+  $('#save').onclick = async () => {
+    const title = $('#t').value.trim(); if (!title) return toast('Add a title');
+    const data = { title, excerpt: $('#ex').value.trim(), body: $('#b').value, published: $('#pub').checked, slug: e?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) + '-' + Date.now().toString(36).slice(-3), ts: e?.ts || Date.now() };
+    const f = $('#cv').files[0]; if (f) data.cover = await compressImage(f, 1400, 500000); else if (e?.cover) data.cover = e.cover;
+    try { e ? await store.set('posts', e.id, data) : await store.add('posts', data); toast('Saved'); Blog(p); } catch (err) { toast(err.message || 'Save failed'); }
+  };
+  if (e) $('#cancel').onclick = () => Blog(p);
+  p.onclick = async ev => { const d = ev.target.dataset; if (d.edit) Blog(p, d.edit); if (d.del && confirm('Delete post?')) { await store.remove('posts', d.del); Blog(p); } };
+}
+
+/* ---- Events ---- */
+async function Events(p) {
+  const evs = await store.list('events', { orderBy: 'date', dir: 'asc' });
+  p.innerHTML = `<div class="card"><h3>Add event / concert</h3><div class="row">${field('t', 'Title')}${field('d', 'Date', '', 'date')}</div><div class="row">${field('tm', 'Time', '', 'text', 'placeholder="8:00 PM"')}${field('v', 'Venue')}</div><div class="row">${field('c', 'City')}${field('l', 'Ticket / info link', '', 'url')}</div><button class="btn primary" id="add" style="margin-top:14px">Add event</button></div>
+    <h3 style="margin:26px 0 10px">All events</h3>${evs.map(x => `<div class="evrow" style="grid-template-columns:110px 1fr auto"><div class="dt">${esc(x.date)}</div><div><b>${esc(x.title)}</b>${x.sample ? ' <span class="note">(sample)</span>' : ''}<div class="note">${esc(x.venue)} · ${esc(x.city)}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
+  $('#add').onclick = async () => { if (!$('#t').value || !$('#d').value) return toast('Title and date needed'); await store.add('events', { title: $('#t').value.trim(), date: $('#d').value, time: $('#tm').value.trim(), venue: $('#v').value.trim(), city: $('#c').value.trim(), link: $('#l').value.trim() }); toast('Added'); Events(p); };
+  p.onclick = async e => { const id = e.target.dataset?.del; if (id) { await store.remove('events', id); Events(p); } };
+}
+
+/* ---- Merch ---- */
+async function Merch(p) {
+  const items = await store.list('merch');
+  p.innerHTML = `<div class="card"><h3>Add product</h3><div class="row">${field('n', 'Name')}${field('pr', 'Price', '', 'text', 'placeholder="$30"')}</div>${field('bl', 'Short description')}${field('lk', 'Checkout link (Shopify, Stripe link, etc.)', '', 'url')}<label for="im">Photo</label><input type="file" id="im" accept="image/*"><button class="btn primary" id="add" style="margin-top:14px">Add product</button></div>
+    <h3 style="margin:26px 0 10px">Products</h3>${items.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b> <span class="price">${esc(x.price)}</span>${x.sample ? ' <span class="note">(sample)</span>' : ''}</div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
+  $('#add').onclick = async () => { if (!$('#n').value) return toast('Name needed'); const d = { name: $('#n').value.trim(), price: $('#pr').value.trim(), blurb: $('#bl').value.trim(), link: $('#lk').value.trim() }; const f = $('#im').files[0]; if (f) d.image = await compressImage(f, 900, 400000); await store.add('merch', d); toast('Added'); Merch(p); };
+  p.onclick = async e => { const id = e.target.dataset?.del; if (id) { await store.remove('merch', id); Merch(p); } };
+}
+
+/* ---- Cameo requests ---- */
+async function Requests(p) {
+  const r = await store.list('requests', { orderBy: 'ts' });
+  p.innerHTML = r.map(x => `<div class="card" style="margin-bottom:12px"><p class="meta">${when(x.ts)} · ${esc(x.occasion)}${x.by ? ' · needed by ' + esc(x.by) : ''}</p><h3>For ${esc(x.to)}</h3><p>${esc(x.message)}</p><p class="note">From ${esc(x.name)} · <a href="mailto:${esc(x.email)}" style="color:var(--teal)">${esc(x.email)}</a> · ${esc(x.status)}</p><button class="btn sm" data-done="${esc(x.id)}">Mark handled</button> <button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('') || '<p class="note">No requests yet.</p>';
+  p.onclick = async e => { const d = e.target.dataset; if (d.done) await store.set('requests', d.done, { status: 'handled' }); if (d.del) await store.remove('requests', d.del); if (d.done || d.del) Requests(p); };
+}
+
+/* ---- Site: about copy, live status, members line, PIN ---- */
+async function Site(p) {
+  const [a, live, contact] = await Promise.all([store.get('site', 'about'), store.get('site', 'live'), store.get('private', 'contact')]);
+  const ta = (id, l, v, h = 130) => `<label for="${id}">${l}</label><textarea id="${id}" style="min-height:${h}px">${esc(v || '')}</textarea>`;
+  p.innerHTML = `<div class="card"><h3>Go live banner</h3><label><input type="checkbox" id="lv" style="width:auto" ${live?.on ? 'checked' : ''}> I am live right now</label><div class="row">${field('lt', 'Title', live?.title)}${field('lu', 'Link (blank = Twitch)', live?.url, 'url')}</div><button class="btn primary" id="savelive" style="margin-top:12px">Update</button></div>
+  <div class="card" style="margin-top:16px"><h3>Members-only text line</h3><p class="note">Shown only to signed-in members. Stored in the database, not in the website code.</p>${field('ph', 'Phone number', contact?.phone)}<button class="btn primary" id="savephone" style="margin-top:12px">Save number</button></div>
+  <div class="card" style="margin-top:16px"><h3>About page</h3><p class="note">Plain text. Blank lines make paragraphs. ## makes a heading.</p>${field('pull', 'Cover pull-quote', a?.pull)}${ta('intro', 'Intro', a?.intro, 110)}${ta('up', '01 Upbringing', a?.upbringing, 200)}${ta('mo', '02 Modeling', a?.modeling, 200)}${ta('ac', '03 Acting', a?.acting, 200)}${ta('mu', '04 Recording artist', a?.music, 200)}<button class="btn primary" id="saveabout" style="margin-top:12px">Save About page</button></div>
+  <div class="card" style="margin-top:16px"><h3>Change PIN</h3><div class="row">${field('np', 'New PIN', '', 'password', 'inputmode="numeric" maxlength="8"')}<div></div></div><button class="btn" id="savepin" style="margin-top:12px">Change PIN</button></div>`;
+  $('#savelive').onclick = async () => { await store.set('site', 'live', { on: $('#lv').checked, title: $('#lt').value.trim(), url: $('#lu').value.trim() }); toast('Updated'); };
+  $('#savephone').onclick = async () => { await store.set('private', 'contact', { phone: $('#ph').value.trim() }); toast('Saved'); };
+  $('#saveabout').onclick = async () => { await store.set('site', 'about', { pull: $('#pull').value.trim(), intro: $('#intro').value, upbringing: $('#up').value, modeling: $('#mo').value, acting: $('#ac').value, music: $('#mu').value }); toast('Saved'); };
+  $('#savepin').onclick = async () => { const n = $('#np').value; if (!/^\d{4,8}$/.test(n)) return toast('Use 4 to 8 digits'); const salt = crypto.randomUUID(); await store.set('adminpin', 'main', { salt, hash: await sha(salt + n) }, false); toast('PIN changed'); };
+}
+
+auth.onChange(() => gate());
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fanboys | Armani West</title>
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main class="wrap">
+  <p class="eyebrow">Members only perks</p>
+  <h1 class="sec-t">The <i>Fanboys</i></h1>
+
+  <div class="card rave" id="me" style="margin-bottom:30px"></div>
+
+  <h2 class="sec-t" style="font-size:30px">Leaderboard</h2>
+  <ol class="board" id="board" style="padding:0;margin:0 0 40px"></ol>
+
+  <h2 class="sec-t" style="font-size:30px">Prestige <i>&amp; rewards</i></h2>
+  <div class="tiers" id="tiers" style="margin-bottom:12px"></div>
+  <p class="note" style="margin-bottom:40px">Earn points: join (+50), visit daily (+5), put yourself on the map (+20), read a blog post (+2). Rewards shown are the proposed program.</p>
+
+  <h2 class="sec-t" style="font-size:30px">Fan <i>map</i></h2>
+  <div id="map"></div>
+  <p class="note" style="margin-top:10px">Pins are city-level only and appear only for members who opt in.</p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script type="module">
+import { boot, store, auth, loadMember, award, getGeo, consent, tierFor, nextTier, TIERS, esc, toast, $ } from './assets/js/core.js';
+await boot('fans');
+
+const map = L.map('map', { scrollWheelZoom: false }).setView([30, -40], 2);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '&copy; OpenStreetMap' }).addTo(map);
+async function drawPins() { (await store.list('pins')).forEach(p => L.circleMarker([p.lat, p.lng], { radius: 9, color: '#ff4fa3', fillColor: '#2de2c0', fillOpacity: .9, weight: 2 }).bindPopup(`<b>${esc(p.handle)}</b><br>${esc(p.city || '')}`).addTo(map)); }
+async function drawBoard() {
+  const b = await store.list('board', { orderBy: 'points', limit: 25 });
+  $('#board').innerHTML = b.map(x => `<li><span><b>${esc(x.handle)}</b></span><span class="tier">${tierFor(x.points).icon} ${tierFor(x.points).name}</span><span class="pts">${x.points} pts</span></li>`).join('');
+}
+$('#tiers').innerHTML = TIERS.map(t => `<div class="card"><div class="ic">${t.icon}</div><h3>${t.name}</h3><p class="meta">${t.min}+ pts</p><p class="note">${esc(t.reward)}</p></div>`).join('');
+
+async function drawMe() {
+  const box = $('#me');
+  if (!auth.user) { box.innerHTML = `<h2 class="disp" style="font-size:28px">Become a Maniac</h2><p class="note">Sign in with Google to earn prestige points, join the leaderboard and unlock Armani's members-only text line.</p><button class="btn primary" id="join">Continue with Google</button>`; $('#join').onclick = async () => { await auth.signIn(); }; return; }
+  const m = await loadMember(), t = tierFor(m.points), n = nextTier(m.points);
+  const contact = await store.get('private', 'contact').catch(() => null);
+  const pct = n ? Math.round((m.points - t.min) / (n.min - t.min) * 100) : 100;
+  box.innerHTML = `<div class="grid g2"><div><p class="eyebrow">${t.icon} ${t.name}</p><h2 class="disp" style="font-size:34px">${esc(m.handle)}</h2><p class="stat">${m.points}<small style="font-size:14px;color:var(--mute)"> pts</small></p><div class="bar"><i style="width:${pct}%"></i></div><p class="note">${n ? `${n.min - m.points} pts to ${n.name}` : 'Top tier reached.'}</p>
+    <label for="hdl">Public display name</label><div class="row"><input id="hdl" value="${esc(m.handle)}" maxlength="24"><button class="btn sm" id="savehdl">Save</button></div>
+    <label><input type="checkbox" id="onboard" style="width:auto" ${m.showOnBoard ? 'checked' : ''}> Show me on the leaderboard</label>
+    <label><input type="checkbox" id="onmap" style="width:auto" ${m.mapOptIn ? 'checked' : ''}> Put my city on the fan map</label></div>
+    <div><p class="eyebrow">Members line</p><h3 class="disp" style="font-size:22px">Text Armani</h3>${contact?.phone ? `<p class="note">Members only. Please keep it respectful and do not share this number.</p><a class="btn primary" href="sms:${esc(contact.phone.replace(/[^\d+]/g, ''))}">Text: ${esc(contact.phone)}</a>` : '<p class="note">The line unlocks when Armani adds it.</p>'}</div></div>`;
+  $('#savehdl').onclick = async () => { const h = $('#hdl').value.trim().slice(0, 24); if (!h) return; await store.set('members', auth.user.uid, { handle: h }); if (m.showOnBoard) await store.set('board', auth.user.uid, { handle: h }); toast('Saved'); drawBoard(); };
+  $('#onboard').onchange = async e => { await store.set('members', auth.user.uid, { showOnBoard: e.target.checked }); if (e.target.checked) await store.set('board', auth.user.uid, { handle: m.handle, points: m.points }); else await store.remove('board', auth.user.uid); drawBoard(); };
+  $('#onmap').onchange = async e => {
+    if (!e.target.checked) { await store.set('members', auth.user.uid, { mapOptIn: false }); await store.remove('pins', auth.user.uid); toast('Removed from map'); return; }
+    const g = await getGeo(); if (!g) { toast('Could not find your city'); e.target.checked = false; return; }
+    await store.set('pins', auth.user.uid, { handle: m.handle, city: g.city, lat: g.lat, lng: g.lng });
+    await store.set('members', auth.user.uid, { mapOptIn: true }); await award('map', 20); toast('You are on the map'); location.reload();
+  };
+}
+await Promise.all([drawBoard(), drawPins()]);
+auth.onChange(drawMe);
+</script>
+</body>
+</html>

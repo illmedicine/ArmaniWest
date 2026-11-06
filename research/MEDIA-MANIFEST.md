@@ -52,3 +52,7 @@ Profile blurb: "armani", 10.6k subscribers, "armaniwest.com | los angeles". Publ
 - Used on site (`assets/img/snap/`): `snap-a.jpg`, `snap-b.jpg`, clean full-res locker-room photoshoot stills (no watermark).
 - Deliberately NOT used: watermarked frames, personal clips (salon, lip filler), and the profile "hero" image, which is third-party anime fan art, not hers.
 - Snapchat media URLs are signed/expiring; ask her for originals before launch.
+
+## Preserved links from /themaniacs (now on music.html)
+maneater (broke.ffm.to/armani-west-maneater), Jingle Bell Rock Montana (broke.ffm.to/armani-west-jingle-bell-rock-montana), SoundCloud (on.soundcloud.com/xEvOibPdu3p1lgxa5g), two more Discord invites (discord.gg/D4F72KmSYs, discord.gg/cVMYCxBve5).
+Concert/ticket links: NONE found on armaniwest.com, /themaniacs, Laylo or Snapchat. Ask her where they live; add them in the portal (Events tab).

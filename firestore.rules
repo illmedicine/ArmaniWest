@@ -1,0 +1,60 @@
+rules_version = '2';
+// Paste into Firebase console > Firestore > Rules. Replace the email below with Armani's Google account.
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['REPLACE_WITH_ARMANI_GOOGLE_EMAIL'];
+    }
+    function isMember() { return signedIn() && exists(/databases/$(db)/documents/members/$(request.auth.uid)); }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Public site content: anyone reads, only admin writes.
+    match /site/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /events/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /merch/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /media/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /posts/{id}  { allow read: if resource.data.published == true || isAdmin(); allow write: if isAdmin(); }
+
+    // Members-only (the text line). Members must have a members doc.
+    match /private/{id} { allow read: if isMember() || isAdmin(); allow write: if isAdmin(); }
+
+    // Private member record. Points may rise by at most 50 per write (client-side awards are rate limited, not tamper-proof).
+    match /members/{uid} {
+      allow read: if owner(uid) || isAdmin();
+      allow create: if owner(uid) && request.resource.data.points <= 50;
+      allow update: if isAdmin() || (owner(uid) && request.resource.data.points <= resource.data.points + 50);
+      allow delete: if owner(uid) || isAdmin();
+    }
+    // Public leaderboard + map. Points must match the private record.
+    match /board/{uid} {
+      allow read: if true;
+      allow create, update: if isAdmin() || (owner(uid) && request.resource.data.points == get(/databases/$(db)/documents/members/$(uid)).data.points);
+      allow delete: if owner(uid) || isAdmin();
+    }
+    match /pins/{uid} {
+      allow read: if true;
+      allow create, update: if owner(uid) && request.resource.data.lat is number && request.resource.data.lng is number;
+      allow delete: if owner(uid) || isAdmin();
+    }
+
+    // Analytics: anyone (who accepted the consent banner) may write; only admin reads.
+    match /visitors/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['ts','path','ref','device','member','city','region','country','lat','lng']);
+      allow read, delete: if isAdmin();
+    }
+    match /presence/{id} { allow read: if true; allow create, update: if true; allow delete: if isAdmin(); }
+
+    // Cameo requests: anyone submits, only admin reads.
+    match /requests/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['ts','name','email','to','occasion','message','by','status'])
+                    && request.resource.data.message.size() <= 800;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /adminpin/{id} { allow read, write: if isAdmin(); }
+  }
+}

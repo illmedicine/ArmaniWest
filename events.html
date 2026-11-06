@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Events | Armani West</title>
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main class="wrap">
+  <p class="eyebrow">Shows, streams &amp; meet-ups</p>
+  <h1 class="sec-t">Events <i>calendar</i></h1>
+  <div class="cal-h"><button class="btn sm" id="prev">&larr;</button><h3 id="mlabel"></h3><button class="btn sm" id="next">&rarr;</button></div>
+  <div class="cal" id="cal"></div>
+  <h2 class="sec-t" style="font-size:30px;margin-top:44px">Upcoming <i>list</i></h2>
+  <div id="list"></div>
+</main>
+<script type="module">
+import { boot, store, esc, fmtDate, $ } from './assets/js/core.js';
+await boot('events');
+const evs = await store.list('events', { orderBy: 'date', dir: 'asc' });
+let cur = new Date(); cur.setDate(1);
+function render() {
+  const y = cur.getFullYear(), m = cur.getMonth(), first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+  $('#mlabel').textContent = cur.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const todayS = new Date().toISOString().slice(0, 10);
+  let h = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="dow">${d}</div>`).join('');
+  for (let i = 0; i < first; i++) h += '<div class="d out"></div>';
+  for (let d = 1; d <= days; d++) {
+    const s = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    h += `<div class="d ${s === todayS ? 'today' : ''}"><b>${d}</b>${evs.filter(e => e.date === s).map(e => `<a class="ev" ${e.link ? `href="${esc(e.link)}" target="_blank" rel="noopener"` : ''} title="${esc(e.title)}">${esc(e.title)}</a>`).join('')}</div>`;
+  }
+  $('#cal').innerHTML = h;
+}
+$('#prev').onclick = () => { cur.setMonth(cur.getMonth() - 1); render(); };
+$('#next').onclick = () => { cur.setMonth(cur.getMonth() + 1); render(); };
+render();
+const today = new Date().toISOString().slice(0, 10), up = evs.filter(e => e.date >= today);
+$('#list').innerHTML = up.length ? up.map(e => `<div class="evrow"><div class="dt">${esc(fmtDate(e.date))}</div><div><b>${esc(e.title)}</b>${e.sample ? ' <span class="note">(sample)</span>' : ''}<div class="note">${esc(e.venue)} · ${esc(e.city)}${e.time ? ' · ' + esc(e.time) : ''}</div></div>${e.link ? `<a class="btn sm" href="${esc(e.link)}" target="_blank" rel="noopener">Info / Tickets</a>` : ''}</div>`).join('') : '<p class="note">No upcoming events yet. Join the <a href="fans.html" style="color:var(--teal)">Maniacs</a> to hear first.</p>';
+</script>
+</body>
+</html>

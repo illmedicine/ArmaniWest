@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cameo | Armani West</title>
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main class="wrap" style="max-width:820px">
+  <p class="eyebrow">Personal shout-outs</p>
+  <h1 class="sec-t">Request a <i>Cameo</i></h1>
+  <p class="note">Birthdays, hype videos, a message for your bestie. Tell Armani what you want. She reviews every request and replies by email with pricing and timing.</p>
+  <div id="official" style="margin:16px 0"></div>
+  <form class="card" id="f">
+    <div class="row"><div><label for="name">Your name</label><input id="name" required maxlength="80"></div><div><label for="email">Email</label><input id="email" type="email" required maxlength="120"></div></div>
+    <div class="row"><div><label for="to">Video is for</label><input id="to" required maxlength="80" placeholder="Name of the person"></div><div><label for="occ">Occasion</label><select id="occ"><option>Birthday</option><option>Hype / shout-out</option><option>Congrats</option><option>Just because</option><option>Business / promo</option></select></div></div>
+    <label for="msg">What should she say?</label><textarea id="msg" required maxlength="800"></textarea>
+    <label for="by">Need it by (optional)</label><input id="by" type="date">
+    <p class="note">No payment is taken here. Requests are reviewed first.</p>
+    <button class="btn primary" type="submit">Send request</button>
+  </form>
+  <p id="ok" class="card" hidden style="border-color:var(--teal)">Request sent. Armani will get back to you by email.</p>
+</main>
+<script type="module">
+import { boot, store, cfg, toast, $ } from './assets/js/core.js';
+await boot('cameo');
+if (cfg.cameoUrl) $('#official').innerHTML = `<a class="btn primary" href="${cfg.cameoUrl}" target="_blank" rel="noopener">Book on Cameo</a> <span class="note">or send a request below</span>`;
+$('#f').onsubmit = async e => {
+  e.preventDefault(); const b = e.submitter; b.disabled = true;
+  try {
+    await store.add('requests', { ts: Date.now(), name: $('#name').value.trim(), email: $('#email').value.trim(), to: $('#to').value.trim(), occasion: $('#occ').value, message: $('#msg').value.trim(), by: $('#by').value, status: 'new' });
+    e.target.hidden = true; $('#ok').hidden = false;
+  } catch (err) { toast('Could not send. Try again.'); b.disabled = false; }
+};
+</script>
+</body>
+</html>

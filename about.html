@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About | Armani West</title>
+<meta name="description" content="The story of Armani West: upbringing, modeling, acting and music.">
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-noavatar>
+<main>
+  <section class="paper">
+    <div class="wrap" style="padding-bottom:30px">
+      <div class="mast"><h2>Armani<br>West</h2><small>The Maniacs Issue<br>Los Angeles<br>No. 01</small></div>
+      <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:40px;align-items:center" id="aboutTop">
+        <div>
+          <p class="eyebrow">Cover story</p>
+          <div class="pull" id="pull"></div>
+          <span class="sticker">Rapper</span><span class="sticker t">Model</span><span class="sticker u">Actor</span><span class="sticker">Creator</span>
+          <div class="cols" style="margin-top:18px" id="intro"></div>
+        </div>
+        <div style="position:relative">
+          <img src="assets/img/snap/snap-a.jpg" alt="Armani West in a locker room with a basketball" style="width:100%;border-radius:4px;display:block">
+          <div class="av-hero" id="heroAv" style="position:absolute;right:-6%;bottom:-8%;--av-size:38%;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rave"><div class="wrap">
+    <p class="eyebrow">The long read</p>
+    <h2 class="sec-t">Her <i>story</i></h2>
+    <div id="chapters"></div>
+  </div></section>
+
+  <section class="wrap" style="text-align:center">
+    <h2 class="sec-t">Be a <i>Maniac</i></h2>
+    <div class="cta center"><a class="btn primary" href="fans.html">Join the Maniacs</a><a class="btn" href="music.html">Hear the music</a><a class="btn" href="cameo.html">Request a Cameo</a></div>
+  </section>
+</main>
+<script type="module">
+import { boot, store, esc, md, $ } from './assets/js/core.js';
+import { mountAvatar } from './assets/js/avatar.js';
+await boot('about');
+const av = mountAvatar($('#heroAv'));
+let t = 0; setInterval(() => av.random(['hipSway', 'wave', 'bounce', 'shimmy', 'headbop'], { dir: (t++ % 2) ? 1 : -1 }), 3200);
+const a = (await store.get('site', 'about')) || {};
+$('#pull').innerHTML = `<b>${esc(a.pull || 'Teal hair. Fur ears. A basketball under one arm.')}</b>`;
+$('#intro').innerHTML = md(a.intro || 'Armani West is a Los Angeles rapper and recording artist whose world runs on teal hair, fur ears and basketball. Her single "basketball" is the song of the summer, and her fans, the Maniacs, run the show.\n\nHere is the story, in her own words.');
+const ch = [
+  ['01', 'Upbringing', a.upbringing, 'Where she grew up, the people who raised her, the moment she knew she was an artist.'],
+  ['02', 'Modeling', a.modeling, 'How modeling started, favorite shoots, the looks that define her.'],
+  ['03', 'Acting', a.acting, 'Roles, training, what the camera taught her.'],
+  ['04', 'Recording artist', a.music, '"basketball", "maneater", "A.i" and what is coming next.'],
+];
+$('#chapters').innerHTML = ch.map(([n, t, body, hint]) => `<div class="chap"><div class="no">${n}</div><div><h3>${t}</h3>${body ? `<div class="prose" style="margin:0">${md(body)}</div>` : `<div class="draft">Draft slot: ${esc(hint)} Armani adds this from her portal (Site &rarr; About).</div>`}</div></div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width">
+    <title>Laylo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap"
+    >
+    <script>
+      window.laylo = {
+        userLocation: {},
+        drop: null,
+        user: null,
+      };
+
+      const reactScript = document.createElement('script');
+      reactScript.src = 'https://laylo.com/drop-pages/v/183/index.js';
+      reactScript.type = 'module';
+      document.head.appendChild(reactScript);
+      const reactCss = document.createElement('link');
+      reactCss.rel = 'stylesheet';
+      reactCss.href = 'https://laylo.com/drop-pages/v/183/index.css';
+      document.head.appendChild(reactCss);
+      const fontCssPreload = document.createElement('link');
+      fontCssPreload.rel = 'preload';
+      fontCssPreload.as = 'style';
+      fontCssPreload.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap';
+      document.head.appendChild(fontCssPreload);
+      const fontCss = document.createElement('link');
+      fontCss.rel = 'stylesheet';
+      fontCss.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap';
+      document.head.appendChild(fontCss);
+
+      fetch('https://d21i0hc4hl3bvt.cloudfront.net/armaniwest/profile.json', {
+        method: "GET",
+      }).then((res) => {
+
+        if (!res.ok) {
+          window.location.replace('https://laylo.com/api/f/armaniwest/profile');
+        }
+
+        /** Get the lat and long from cloudfront's headers */
+        const userLat = res.headers.get("CloudFront-Viewer-Latitude");
+        const userLong = res.headers.get("CloudFront-Viewer-Longitude");
+        const userCountry = res.headers.get("CloudFront-Viewer-Country");
+
+        window.laylo.userLocation.latitude = userLat;
+        window.laylo.userLocation.longitude = userLong;
+        window.laylo.userLocation.country = userCountry;
+
+        res.json().then((data) => {
+          if (data.appearance && data.appearance.font !== 'Inter') {
+              const fontCssPreload = document.createElement('link');
+              fontCssPreload.rel = 'preload';
+              fontCssPreload.as = 'style';
+              fontCssPreload.href = 'https://fonts.googleapis.com/css2?family=' + data.appearance.font + ':wght@400;700;800&display=swap';
+              document.head.appendChild(fontCssPreload);
+              const fontCss = document.createElement('link');
+              fontCss.rel = 'stylesheet';
+              fontCss.href = 'https://fonts.googleapis.com/css2?family=' + data.appearance.font + ':wght@400;700;800&display=swap';
+              document.head.appendChild(fontCss);
+          }
+
+          const endDate = data.endDate ? data.endDate - 60 * 1000 : null; /** subtract one minute */;
+          const currentTime = new Date().getTime() ;
+
+         if (data.link && endDate && endDate < currentTime) {
+            window.location.replace('https://laylo.co/r/' + data.slug);
+
+            return
+          }
+
+          if ("null" !== "null") {
+            const subProduct = data.orderedSubProducts.find(subProduct => subProduct.slug === "null");
+
+            const product = {
+              ...data,
+              orderedSubProducts: [],
+              ...subProduct,
+              parentProduct: {
+                productId: data.productId,
+                title: data.title,
+                slug: data.slug,
+                isPublic: data.isPublic,
+              },
+              user: data.user,
+            };
+            window.laylo.drop = product;
+          } else {
+            window.laylo.drop = data;
+          }
+
+          const userId = data.user.id;
+
+          if (window.laylo.user) {
+            return;
+          }
+
+            window.laylo.user = {
+              id: userId,
+              displayName: ' '
+            };
+
+          // Don't fetch user from CDN if already set by postMessage
+          if (window.laylo.userSetByMessage) {
+            return;
+          }
+
+          fetch('https://d3oyaxbt9vo0fg.cloudfront.net/users/' + userId + '.json', {
+            method: "GET",
+          }).then((res) => {
+            if (!res.ok) {
+              window.location.replace('https://laylo.com/api/f/armaniwest/profile?uploadUser=true');
+            }
+
+            res.json().then((data) => {
+            // Only set if not already overridden by message
+              if (!window.laylo.userSetByMessage) {
+                if (data && data.User) {
+                    window.laylo.user = data.User[0];
+                } else {
+                    window.laylo.user = data
+                }
+              }
+            });
+          });
+        });
+      });
+    </script>
+  </head>
+  <body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;">
+    <div id="root"></div>
+  </body>
+</html>

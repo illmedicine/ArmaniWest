@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Media | Armani West</title>
+<link rel="icon" href="assets/img/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main class="wrap">
+  <p class="eyebrow">Photos &amp; moments</p>
+  <h1 class="sec-t">The <i>gallery</i></h1>
+  <div class="gallery" id="g"></div>
+</main>
+<script type="module">
+import { boot, store, esc, $ } from './assets/js/core.js';
+await boot('media');
+const m = await store.list('media', { orderBy: 'ts' });
+$('#g').innerHTML = m.map(x => `<figure><img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy"><figcaption>${esc(x.caption)}</figcaption></figure>`).join('') || '<p class="note">Nothing here yet.</p>';
+$('#g').onclick = e => { const i = e.target.closest('img'); if (!i) return; const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = `<img src="${i.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); };
+</script>
+</body>
+</html>
