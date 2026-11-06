@@ -42,3 +42,13 @@ Text/SMS number published on the current site: (424) 610-8554 (now shown in The 
 | ig-*.jpg (3) | various | recent Instagram thumbnails |
 
 Rights: images are hers via her own page; get originals/higher-res from her before launch.
+
+## Snapchat pull (public profile https://www.snapchat.com/@armaniwesttt, 2026-11-06)
+Profile blurb: "armani", 10.6k subscribers, "armaniwest.com | los angeles". Public content: 2 curated Highlights ("the queen of rap" + one untitled, 3 snaps) and about 13 Spotlight videos (7-57s, 540x960).
+- `research/snap/next_data.json`: full structured page data (all media URLs, highlight IDs).
+- `research/snap/spot*.jpg`, `highlight*-thumb.jpg`: poster stills.
+- `research/snap/frames/`: 28 frames extracted with ffmpeg (all carry the Snapchat watermark/handle overlay).
+- Videos (about 30 MB) are kept locally only (gitignored); re-download via the URLs in next_data.json.
+- Used on site (`assets/img/snap/`): `snap-a.jpg`, `snap-b.jpg`, clean full-res locker-room photoshoot stills (no watermark).
+- Deliberately NOT used: watermarked frames, personal clips (salon, lip filler), and the profile "hero" image, which is third-party anime fan art, not hers.
+- Snapchat media URLs are signed/expiring; ask her for originals before launch.
