@@ -46,6 +46,7 @@ export const seed = {
     q14: { src: 'assets/img/press/aw-14.jpg', caption: 'Live on stage', ts: now - 14 * day },
     q15: { src: 'assets/img/press/aw-15.jpg', caption: 'Behind the scenes', ts: now - 15 * day },
     q16: { src: 'assets/img/press/aw-16.jpg', caption: 'Portrait', ts: now - 16 * day },
+    q17: { src: 'assets/img/press/aw-17.jpg', caption: 'Crowned', ts: now - 2 },
     p3: { src: 'assets/img/avatar.png', caption: 'On the turf', ts: now - 3 * day },
     p4: { src: 'assets/img/block-1.webp', caption: 'Portrait', ts: now - 2 * day },
     p5: { src: 'assets/img/ig-17877336342473842.jpg', caption: 'Instagram', ts: now - 1 * day },

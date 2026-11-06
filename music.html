@@ -17,7 +17,10 @@
     <iframe title="Spotify" src="https://open.spotify.com/embed/artist/7xLpLOGgLLFUaHpZhu94z6" height="352" loading="lazy" allow="encrypted-media"></iframe>
     <iframe title="Apple Music" src="https://embed.music.apple.com/us/artist/armani-west/1716309167" height="352" loading="lazy" allow="autoplay *; encrypted-media *"></iframe>
   </div>
-  <h2 class="sec-t" style="font-size:30px">Singles &amp; <i>links</i></h2>
+  <h2 class="sec-t" style="font-size:30px">Disco<i>graphy</i></h2>
+  <div class="chipset" id="dchips" style="margin-bottom:16px"></div>
+  <div class="disco" id="disco"></div>
+  <h2 class="sec-t" style="font-size:30px;margin-top:44px">Singles &amp; <i>links</i></h2>
   <div class="grid g3">
     <a class="card" href="https://broke.ffm.to/armani-west-basketball" target="_blank" rel="noopener"><h3>basketball</h3><p class="meta">The song of the summer. Pick your streaming service.</p></a>
     <a class="card" href="https://youtu.be/8uCBIONd590" target="_blank" rel="noopener"><h3>basketball (lyric video)</h3><p class="meta">YouTube</p></a>
@@ -28,6 +31,17 @@
   </div>
   <p class="note" style="margin-top:20px">Links carried over from her current Beacons page. More on <a href="https://open.spotify.com/artist/7xLpLOGgLLFUaHpZhu94z6" target="_blank" rel="noopener" style="color:var(--teal)">Spotify</a> and <a href="https://music.apple.com/us/artist/armani-west/1716309167" target="_blank" rel="noopener" style="color:var(--teal)">Apple Music</a>.</p>
 </main>
-<script type="module">import { boot } from './assets/js/core.js'; await boot('music');</script>
+<script type="module">
+import { boot, esc, $ } from './assets/js/core.js';
+import { DISCO, listen } from './assets/js/disco.js';
+await boot('music');
+let f = 'all';
+const draw = () => {
+  $('#dchips').innerHTML = [['all', 'Everything'], ['album', 'Albums'], ['single', 'Singles']].map(([v, t]) => `<button class="chip ${f === v ? 'on' : ''}" data-v="${v}">${t}</button>`).join('');
+  $('#disco').innerHTML = DISCO.filter(r => f === 'all' || r.type === f).map(r => `<a class="rel" href="${listen(r)}" target="_blank" rel="noopener"><img src="${r.img}" alt="${esc(r.t)} cover art" loading="lazy"><b>${esc(r.t)}</b><span>${r.type === 'album' ? 'Album' : 'Single'} · ${r.date.slice(0, 4)}</span></a>`).join('');
+};
+$('#dchips').onclick = e => { const b = e.target.closest('.chip'); if (b) { f = b.dataset.v; draw(); } };
+draw();
+</script>
 </body>
 </html>
