@@ -156,24 +156,21 @@ export function faces(m) {
   return { front: `<div class="emo">${esc(m.emoji || '🛍️')}</div>`, back: `<div class="emo">${esc(m.emoji || '🛍️')}</div>` };
 }
 
-// Interactive turnaround: drag to rotate, tap to flip, buttons + arrow keys.
+// Interactive turnaround: drag to rotate, tap to flip, arrow keys. Pieces with only one photo tilt in 3D and spring back.
 export function mountViewer(el, product) {
   const { front, back, single } = faces(product);
   el.classList.add('v3d'); el.tabIndex = 0; el.setAttribute('role', 'group'); el.setAttribute('aria-label', product.name + ': drag or use arrow keys to turn');
-  if (single) { el.classList.add('single'); el.style.cursor = 'default'; el.removeAttribute('tabindex'); el.setAttribute('aria-label', product.name); el.innerHTML = `<div class="v3d-in"><div class="v3d-f">${front}</div></div>`; return; }
-  el.innerHTML = `<div class="v3d-in"><div class="v3d-f">${front}</div><div class="v3d-f bk">${back}</div></div>`;
-  const inn = el.querySelector('.v3d-in'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.innerHTML = `<div class="v3d-in"><div class="v3d-f">${front}</div>${single ? '' : `<div class="v3d-f bk">${back}</div>`}</div><span class="v3d-hint">drag to turn</span>`;
+  const inn = el.querySelector('.v3d-in'), hint = el.querySelector('.v3d-hint'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let rot = 0, drag = false, sx = 0, start = 0, moved = 0;
-  const set = (r, anim) => { inn.style.transition = anim && !reduce ? 'transform .7s cubic-bezier(.2,.8,.2,1)' : 'none'; inn.style.transform = `rotateY(${r}deg)`; rot = r; mark(); };
-  const mark = () => { const b = Math.round(rot / 180) % 2 !== 0; el.querySelectorAll('[data-s]').forEach(x => x.classList.toggle('on', (x.dataset.s === '1') === b)); };
-  const go = (back) => { const k = Math.round((rot - (back ? 180 : 0)) / 360); set(k * 360 + (back ? 180 : 0), true); };
-  el.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; drag = true; moved = 0; sx = e.clientX; start = rot; el.setPointerCapture(e.pointerId); el.classList.add('grab');  });
-  el.addEventListener('pointermove', e => { if (!drag) return; moved = Math.max(moved, Math.abs(e.clientX - sx)); set(start + (e.clientX - sx) * 0.9); });
-  const end = () => { if (!drag) return; drag = false; el.classList.remove('grab'); moved < 5 ? set(rot + 180, true) : set(Math.round(rot / 180) * 180, true); };
+  const LIM = 32;
+  const set = (r, anim) => { inn.style.transition = anim && !reduce ? 'transform .7s cubic-bezier(.2,.8,.2,1)' : 'none'; inn.style.transform = `rotateY(${r}deg)`; rot = r; };
+  const clampS = r => Math.max(-LIM, Math.min(LIM, r));
+  el.addEventListener('pointerdown', e => { drag = true; moved = 0; sx = e.clientX; start = rot; el.setPointerCapture(e.pointerId); el.classList.add('grab'); hint.style.opacity = 0; });
+  el.addEventListener('pointermove', e => { if (!drag) return; moved = Math.max(moved, Math.abs(e.clientX - sx)); const r = start + (e.clientX - sx) * 0.9; set(single ? clampS(r) : r); });
+  const end = () => { if (!drag) return; drag = false; el.classList.remove('grab'); if (single) return set(0, true); moved < 5 ? set(rot + 180, true) : set(Math.round(rot / 180) * 180, true); };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
-  el.addEventListener('click', e => { const s = e.target.dataset?.s; if (s != null) go(s === '1'); });
-  el.addEventListener('keydown', e => { if (e.key === 'ArrowRight') set(Math.round(rot / 180) * 180 + 180, true); if (e.key === 'ArrowLeft') set(Math.round(rot / 180) * 180 - 180, true); });
-  mark();
+  el.addEventListener('keydown', e => { if (single) { set(e.key === 'ArrowRight' ? LIM : e.key === 'ArrowLeft' ? -LIM : 0, true); setTimeout(() => set(0, true), 500); return; } if (e.key === 'ArrowRight') set(Math.round(rot / 180) * 180 + 180, true); if (e.key === 'ArrowLeft') set(Math.round(rot / 180) * 180 - 180, true); });
   // gentle first-view nudge so people know it turns
   if (!reduce) setTimeout(() => { if (rot === 0 && !drag) { set(24, true); setTimeout(() => { if (!drag && rot === 24) set(0, true); }, 700); } }, 700 + Math.random() * 600);
 }
