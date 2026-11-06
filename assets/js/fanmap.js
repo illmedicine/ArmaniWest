@@ -7,7 +7,25 @@ const HAIR = ['#ff4fa3', '#2de2c0', '#a98bff', '#ffd23f', '#ff7a45', '#4fa3ff', 
 const SKIN = ['#f2c9a5', '#d9a273', '#b9774b', '#8a4f2d', '#6a3b22', '#f6d8bf'];
 
 // tiny chibi head, colors derived from the handle so every fan looks a little different
-export function chibi(seed) {
+function bald(skin) {
+  const d = skin.replace('#', ''), sh = '#' + [0, 2, 4].map(i => Math.max(0, parseInt(d.substr(i, 2), 16) - 28).toString(16).padStart(2, '0')).join('');
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#2a1d3b"/>
+    <path d="M2,100 C4,80 24,74 50,74 C76,74 96,80 98,100Z" fill="#1c1822"/>
+    <path d="M38,70 H62 V82 Q50,90 38,82Z" fill="${sh}"/>
+    <path d="M24,52 C24,22 38,14 50,14 C62,14 76,22 76,52 C76,72 66,86 50,86 C34,86 24,72 24,52Z" fill="${skin}"/>
+    <ellipse cx="22.5" cy="56" rx="4" ry="7" fill="${skin}"/><ellipse cx="77.5" cy="56" rx="4" ry="7" fill="${skin}"/>
+    <path d="M36,34 Q50,24 64,34" stroke="#fff" stroke-opacity=".28" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M32,48 Q40,43 47,48 M53,48 Q60,43 68,48" stroke="#1a1214" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+    <ellipse cx="40" cy="55" rx="3.6" ry="4" fill="#1a1214"/><ellipse cx="60" cy="55" rx="3.6" ry="4" fill="#1a1214"/>
+    <circle cx="41.2" cy="53.6" r="1.3" fill="#fff"/><circle cx="61.2" cy="53.6" r="1.3" fill="#fff"/>
+    <path d="M50,56 V66 M47,67 Q50,69 53,67" stroke="${sh}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M42,75 Q50,80 58,75" stroke="#4a2418" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M26,66 Q34,86 50,87 Q66,86 74,66" stroke="${sh}" stroke-opacity=".5" stroke-width="3" fill="none"/>
+  </svg>`;
+}
+export function chibi(seed, look) {
+  if (look && look.bald) return bald(look.skin || '#8a5a3a');
   const h = hash(seed), hair = HAIR[h % HAIR.length], skin = SKIN[(h >> 3) % SKIN.length];
   const ears = (h >> 5) % 3 === 0, specs = (h >> 7) % 2 === 0, bow = (h >> 9) % 3 === 1;
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +48,7 @@ function armaniHead() {
   return avatarSVG().replace('viewBox="0 0 400 680"', 'viewBox="95 12 210 270"').replace('class="aw-av"', 'class="aw-av-head" preserveAspectRatio="xMidYMin slice"');
 }
 
-const pin = ({ seed, label, big, host, glow }) => `<div class="sm-pin ${big ? 'big' : ''} ${host ? 'host' : ''}" style="--g:${glow || '#ff4fa3'}"><div class="sm-ring"><div class="sm-face">${host ? armaniHead() : chibi(seed)}</div></div><span class="sm-tag">${esc(label)}</span></div>`;
+const pin = ({ seed, look, label, big, host, glow }) => `<div class="sm-pin ${big ? 'big' : ''} ${host ? 'host' : ''}" style="--g:${glow || '#ff4fa3'}"><div class="sm-ring"><div class="sm-face">${host ? armaniHead() : chibi(seed, look)}</div></div><span class="sm-tag">${esc(label)}</span></div>`;
 
 export function mountFanMap({ el, pins, tierFor, ready }) {
   const HOST = { id: '__host', handle: 'Armani West', city: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437, host: true };
@@ -45,7 +63,7 @@ export function mountFanMap({ el, pins, tierFor, ready }) {
   const markers = new Map();
 
   all.forEach(p => {
-    const icon = L.divIcon({ className: 'sm-wrap', html: pin({ seed: p.handle, label: p.host ? 'Armani' : p.handle, big: p.host, host: p.host, glow: p.host ? '#2de2c0' : '#ff4fa3' }), iconSize: [0, 0], iconAnchor: [0, 0] });
+    const icon = L.divIcon({ className: 'sm-wrap', html: pin({ seed: p.handle, look: p.look, label: p.host ? 'Armani' : p.handle, big: p.host, host: p.host, glow: p.host ? '#2de2c0' : '#ff4fa3' }), iconSize: [0, 0], iconAnchor: [0, 0] });
     const m = L.marker([p.lat, p.lng], { icon, zIndexOffset: p.host ? 1000 : 0, keyboard: true, title: p.handle }).addTo(map);
     m.on('click', () => open(p));
     markers.set(p.id, m);
@@ -53,7 +71,7 @@ export function mountFanMap({ el, pins, tierFor, ready }) {
 
   function open(p) {
     const t = p.host ? null : tierFor(p.points || 0);
-    sheet.innerHTML = `<button class="sm-x" aria-label="Close">&times;</button><div class="sm-ava">${p.host ? armaniHead() : chibi(p.handle)}</div>
+    sheet.innerHTML = `<button class="sm-x" aria-label="Close">&times;</button><div class="sm-ava">${p.host ? armaniHead() : chibi(p.handle, p.look)}</div>
       <div class="sm-info"><b>${esc(p.handle)}</b><span>${esc(p.city || '')}</span>${t ? `<em>${t.icon} ${t.name} &middot; ${p.points || 0} pts</em>` : '<em>&#9733; Maniac HQ</em>'}</div>
       <button class="btn sm primary sm-wave">${p.host ? 'Say hi 👋' : 'Wave 👋'}</button>`;
     sheet.classList.add('on');
@@ -63,7 +81,7 @@ export function mountFanMap({ el, pins, tierFor, ready }) {
   }
   map.on('click', () => sheet.classList.remove('on'));
 
-  tray.innerHTML = all.map(p => `<button class="sm-chip" data-id="${esc(p.id)}"><span>${p.host ? armaniHead() : chibi(p.handle)}</span>${esc(p.host ? 'Armani' : p.handle)}</button>`).join('');
+  tray.innerHTML = all.map(p => `<button class="sm-chip" data-id="${esc(p.id)}"><span>${p.host ? armaniHead() : chibi(p.handle, p.look)}</span>${esc(p.host ? 'Armani' : p.handle)}</button>`).join('');
   tray.onclick = e => { const b = e.target.closest('.sm-chip'); if (b) open(all.find(p => p.id === b.dataset.id)); };
   q.oninput = () => { const v = q.value.trim().toLowerCase(); [...tray.children].forEach(c => c.hidden = v && !c.textContent.toLowerCase().includes(v)); };
   q.onkeydown = e => { if (e.key === 'Enter') { const f = all.find(p => p.handle.toLowerCase().includes(q.value.trim().toLowerCase())); if (f) open(f); } };

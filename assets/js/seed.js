@@ -57,5 +57,5 @@ export const TIERS = [
 
 // Founding fans shown on the board and map in every mode.
 export const FOUNDERS = [
-  { handle: 'AMW-ILLYMEDS', city: 'South Carolina', lat: 33.9, lng: -80.95, points: 500 },
+  { handle: 'AMW-ILLYMEDS', city: 'South Carolina', lat: 33.9, lng: -80.95, points: 500, look: { bald: true, skin: '#8a5a3a' } },
 ];

@@ -42,7 +42,7 @@ await boot('fans');
 
 async function drawPins() {
   const live = await store.list('pins'), pts = {}; (await store.list('board')).forEach(x => pts[x.handle] = x.points);
-  const pins = [...FOUNDERS.map(f => ({ id: 'f-' + f.handle, handle: f.handle, city: f.city, lat: f.lat, lng: f.lng, points: f.points })), ...live.filter(p => !FOUNDERS.some(f => f.handle === p.handle)).map(p => ({ ...p, points: pts[p.handle] || 0 }))];
+  const pins = [...FOUNDERS.map(f => ({ id: 'f-' + f.handle, handle: f.handle, city: f.city, lat: f.lat, lng: f.lng, points: f.points, look: f.look })), ...live.filter(p => !FOUNDERS.some(f => f.handle === p.handle)).map(p => ({ ...p, points: pts[p.handle] || 0 }))];
   mountFanMap({ el: $('#map'), pins, tierFor });
 }
 async function drawBoard() {
