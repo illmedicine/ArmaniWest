@@ -28,7 +28,7 @@ async function fbInit() {
 }
 
 /* ---------- Store ---------- */
-const lk = col => 'aw:' + col + ':v8';
+const lk = col => 'aw:' + col + ':v9';
 function localCol(col) {
   let c = LS.get(lk(col), null);
   if (c === null) {
