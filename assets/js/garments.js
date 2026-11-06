@@ -123,7 +123,11 @@ function draw(d, side) {
 
 export function faces(m) {
   if (m.image) return { front: `<img src="${esc(m.image)}" alt="${esc(m.name)} front" draggable="false">`, back: `<img src="${esc(m.imageBack || m.image)}" alt="${esc(m.name)} back" draggable="false">` };
-  if (m.design) return { front: draw(m.design, 'front'), back: draw(m.design, 'back') };
+  if (m.design) {
+    // Drop real/AI product photos at assets/img/merch/<id>-front.jpg and -back.jpg; they cover the drawn preview.
+    const ph = s => m.id ? `<img class="ph" src="assets/img/merch/${esc(m.id)}-${s}.jpg" alt="${esc(m.name)} ${s}" draggable="false" onerror="this.remove()">` : '';
+    return { front: draw(m.design, 'front') + ph('front'), back: draw(m.design, 'back') + ph('back') };
+  }
   return { front: `<div class="emo">${esc(m.emoji || '🛍️')}</div>`, back: `<div class="emo">${esc(m.emoji || '🛍️')}</div>` };
 }
 

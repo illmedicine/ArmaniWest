@@ -152,3 +152,4 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .chip{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:7px 14px;border-radius:99px;font:700 13px "DM Sans";cursor:pointer}.chip.on{background:var(--pink);border-color:var(--pink)}
 .buyrow{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
 .prod .badge{z-index:3}
+.v3d-f img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px}
