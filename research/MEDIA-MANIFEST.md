@@ -21,7 +21,7 @@ Source of truth today: https://armaniwest.com (a Beacons link-in-bio page, captu
 
 Current-site content: "BASKETBALL: THE MOVIE" music video, "basketball" single ("song of the summer"), anime lyric video, "A.i" official music video, Discord VIP ("MANIACS ONLY"), text-me signup, "armani westie" fan CTA.
 
-A text/SMS number is published on the current site; deliberately NOT copied into this public repo. Add it privately when she approves.
+Text/SMS number published on the current site: (424) 610-8554 (now shown in The Maniacs section as a "Text me" button).
 
 ## Third-party / unverified (confirm with her before using)
 - famousbirthdays.com lists a profile for her as rapper/musician; its claims (alias, "Piano TILES" streams, school history, birthdate) are NOT corroborated by her own channels. Do not publish.
