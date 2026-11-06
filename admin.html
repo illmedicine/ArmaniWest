@@ -16,6 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="module">
 import { boot, store, auth, demo, cfg, esc, md, toast, compressImage, LS, $, $$ } from './assets/js/core.js';
+import { CATALOG, LINES } from './assets/js/catalog.js';
 await boot('admin');
 const root = $('#root');
 
@@ -116,10 +117,20 @@ async function Events(p) {
 
 /* ---- Merch ---- */
 async function Merch(p) {
-  const items = await store.list('merch');
-  p.innerHTML = `<div class="card"><h3>Add product</h3><div class="row">${field('n', 'Name')}${field('pr', 'Price', '', 'text', 'placeholder="$30"')}</div>${field('bl', 'Short description')}${field('lk', 'Checkout link (Shopify, Stripe link, etc.)', '', 'url')}<label for="im">Photo</label><input type="file" id="im" accept="image/*"><button class="btn primary" id="add" style="margin-top:14px">Add product</button></div>
-    <h3 style="margin:26px 0 10px">Products</h3>${items.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b> <span class="price">${esc(x.price)}</span>${x.sample ? ' <span class="note">(sample)</span>' : ''}</div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
-  $('#add').onclick = async () => { if (!$('#n').value) return toast('Name needed'); const d = { name: $('#n').value.trim(), price: $('#pr').value.trim(), blurb: $('#bl').value.trim(), link: $('#lk').value.trim() }; const f = $('#im').files[0]; if (f) d.image = await compressImage(f, 900, 400000); await store.add('merch', d); toast('Added'); Merch(p); };
+  const items = (await store.list('merch')).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  const sel = (id, label, opts) => `<label for="${id}">${label}</label><select id="${id}">${opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
+  p.innerHTML = `<div class="card"><h3>Starter catalog</h3><p class="note">Loads the Patent Leather, Leather and Plaid lines (${Object.keys(CATALOG).length} concept pieces with front/back previews). Skips anything already loaded.</p><button class="btn primary" id="seedcat">Load starter catalog</button></div>
+    <div class="card" style="margin-top:16px"><h3>Add product</h3><div class="row">${field('n', 'Name')}${field('pr', 'Price', '', 'text', 'placeholder="$30"')}</div><div class="row">${sel('ln', 'Line', Object.entries(LINES))}${sel('fo', 'For', [['girls', 'Girls'], ['guys', 'Guys'], ['unisex', 'Unisex']])}</div><div class="row">${sel('ca', 'Category', ['Outerwear', 'Tops', 'Headwear', 'Bottoms', 'Accessories'].map(x => [x, x]))}${sel('ty', 'Preview shape (if no photos)', [['crop', 'Tiny tee'], ['vtee', 'V-neck tee'], ['hoodie', 'Hoodie'], ['crophood', 'Crop hoodie'], ['jacket', 'Jacket (guys)'], ['jacketCrop', 'Jacket (girls)'], ['beanie', 'Beanie'], ['skirt', 'Skirt'], ['pinafore', 'Pinafore'], ['choker', 'Choker'], ['bag', 'Bag'], ['gloves', 'Gloves'], ['socks', 'Socks'], ['belt', 'Belt']])}</div>
+      ${field('bl', 'Short description')}${field('lk', 'Checkout link (Shopify, Stripe link, etc.)', '', 'url')}
+      <div class="row"><div><label for="im">Front photo (optional)</label><input type="file" id="im" accept="image/*"></div><div><label for="imb">Back photo (optional)</label><input type="file" id="imb" accept="image/*"></div></div><p class="note">With photos, the shop turns between your front and back photos. Without, it shows the drawn preview.</p><button class="btn primary" id="add" style="margin-top:14px">Add product</button></div>
+    <h3 style="margin:26px 0 10px">Products (${items.length})</h3>${items.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b> <span class="price">${esc(x.price)}</span>${x.sample ? ' <span class="note">(concept)</span>' : ''}<div class="note">${esc(LINES[x.line] || '')} · ${esc(x.for || '')} · ${esc(x.cat || '')}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
+  $('#seedcat').onclick = async () => { const have = new Set(items.map(i => i.id)); let n = 0; for (const [id, d] of Object.entries(CATALOG)) if (!have.has(id)) { await store.set('merch', id, d, false); n++; } toast(n ? `Loaded ${n} pieces` : 'Already loaded'); Merch(p); };
+  $('#add').onclick = async () => {
+    if (!$('#n').value) return toast('Name needed');
+    const d = { name: $('#n').value.trim(), price: $('#pr').value.trim(), blurb: $('#bl').value.trim(), link: $('#lk').value.trim(), line: $('#ln').value, for: $('#fo').value, cat: $('#ca').value, order: 0, design: { type: $('#ty').value, line: $('#ln').value, text: 'MANIAC' } };
+    const f = $('#im').files[0], b = $('#imb').files[0]; if (f) d.image = await compressImage(f, 900, 380000); if (b) d.imageBack = await compressImage(b, 900, 380000);
+    await store.add('merch', d); toast('Added'); Merch(p);
+  };
   p.onclick = async e => { const id = e.target.dataset?.del; if (id) { await store.remove('merch', id); Merch(p); } };
 }
 

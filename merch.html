@@ -11,19 +11,29 @@
 </head>
 <body>
 <main class="wrap">
-  <p class="eyebrow">Official store</p>
+  <p class="eyebrow">Maniac U. · Est. LA</p>
   <h1 class="sec-t">The <i>merch</i></h1>
+  <p class="note" style="max-width:60ch">Three lines: mirror-gloss <b>Patent Leather</b>, matte <b>Leather</b> and goth-schoolgirl <b>Plaid</b>. Drag any piece to turn it, or tap Front / Back.</p>
+  <div class="chips" id="chips"></div>
   <div class="grid g4" id="shop"></div>
-  <p class="note" style="margin-top:24px">Checkout opens on a secure store page (Shopify, Stripe link or similar) that Armani sets per item in her portal. This site never handles card details.</p>
+  <p class="note" style="margin-top:24px">Pieces marked Concept are design previews; prices, sizes and materials are confirmed at launch. Checkout opens on a secure store page Armani sets per item. This site never handles card details.</p>
 </main>
 <script type="module">
-import { boot, store, esc, cfg, $ } from './assets/js/core.js';
+import { boot, store, esc, cfg, $, $$ } from './assets/js/core.js';
+import { mountViewer } from './assets/js/garments.js';
+import { LINES } from './assets/js/catalog.js';
 await boot('merch');
-const items = await store.list('merch');
-$('#shop').innerHTML = items.map(m => {
-  const link = m.link || cfg.shopUrl;
-  return `<div class="card prod">${m.sample ? '<span class="badge">Sample</span>' : ''}<div class="pic">${m.image ? `<img src="${esc(m.image)}" alt="${esc(m.name)}">` : esc(m.emoji || '🛍️')}</div><h3>${esc(m.name)}</h3><p class="meta">${esc(m.blurb || '')}</p><span class="price">${esc(m.price)}</span>${link ? `<a class="btn sm primary" href="${esc(link)}" target="_blank" rel="noopener">Buy</a>` : '<button class="btn sm" disabled>Coming soon</button>'}</div>`;
-}).join('') || '<p class="note">Drop coming soon.</p>';
+const items = (await store.list('merch')).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+const F = { line: 'all', who: 'all', cat: 'all' };
+const chip = (k, vals) => `<div class="chipset">${vals.map(([v, t]) => `<button class="chip ${F[k] === v ? 'on' : ''}" data-k="${k}" data-v="${v}">${t}</button>`).join('')}</div>`;
+function draw() {
+  $('#chips').innerHTML = chip('line', [['all', 'All lines'], ...Object.entries(LINES)]) + chip('who', [['all', 'Everyone'], ['girls', 'Girls'], ['guys', 'Guys']]) + chip('cat', [['all', 'Everything'], ['Outerwear', 'Jackets'], ['Tops', 'Tops & hoodies'], ['Headwear', 'Beanies'], ['Bottoms', 'Skirts'], ['Accessories', 'Accessories']]);
+  const list = items.filter(m => (F.line === 'all' || m.line === F.line) && (F.who === 'all' || m.for === F.who || m.for === 'unisex') && (F.cat === 'all' || m.cat === F.cat));
+  $('#shop').innerHTML = list.map(m => `<div class="card prod" data-id="${esc(m.id)}">${m.sample ? '<span class="badge">Concept</span>' : ''}<div class="pic3d"></div><p class="eyebrow" style="margin:6px 0 0">${esc(LINES[m.line] || '')} · ${m.for === 'unisex' ? 'Unisex' : m.for === 'girls' ? 'Girls' : m.for === 'guys' ? 'Guys' : ''}</p><h3>${esc(m.name)}</h3><p class="meta">${esc(m.blurb || '')}</p><div class="buyrow"><span class="price">${esc(m.price)}</span>${(m.link || cfg.shopUrl) ? `<a class="btn sm primary" href="${esc(m.link || cfg.shopUrl)}" target="_blank" rel="noopener">Buy</a>` : '<button class="btn sm" disabled>Coming soon</button>'}</div></div>`).join('') || '<p class="note">Nothing in this filter yet.</p>';
+  $$('.prod').forEach(c => mountViewer($('.pic3d', c), items.find(m => m.id === c.dataset.id)));
+}
+$('#chips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; F[b.dataset.k] = b.dataset.v; draw(); };
+draw();
 </script>
 </body>
 </html>

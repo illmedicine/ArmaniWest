@@ -1,4 +1,5 @@
 // Demo-mode starter content. Anything flagged sample:true is placeholder and shows a SAMPLE badge.
+import { CATALOG } from './catalog.js';
 const day = 86400000, now = Date.now();
 const iso = n => new Date(now + n * day).toISOString().slice(0, 10);
 
@@ -8,12 +9,7 @@ export const seed = {
     e2: { title: 'Maniacs Meet & Greet', date: iso(21), time: '6:00 PM', venue: 'Venue TBA', city: 'Los Angeles, CA', link: '', sample: true },
     e3: { title: 'Live on Twitch: Q&A', date: iso(14), time: '7:00 PM', venue: 'Online', city: 'twitch.tv/armaniwestttt', link: 'https://twitch.tv/armaniwestttt', sample: true },
   },
-  merch: {
-    m1: { name: 'Maniacs Tee', price: '$30', emoji: '👕', blurb: 'Teal on black. Limited drop.', link: '', sample: true },
-    m2: { name: 'Locker Room Hoodie', price: '$65', emoji: '🧥', blurb: 'Orange locker print.', link: '', sample: true },
-    m3: { name: 'Fur Ears Headband', price: '$22', emoji: '🐾', blurb: 'The signature look.', link: '', sample: true },
-    m4: { name: '"basketball" Poster', price: '$18', emoji: '🏀', blurb: '18x24, signed on request.', link: '', sample: true },
-  },
+  merch: CATALOG,
   posts: {
     welcome: {
       title: 'Welcome to the official site', slug: 'welcome', published: true, ts: now - day,

@@ -135,3 +135,20 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
   .burger{display:block}.nav nav{display:none;order:5;width:100%;margin:0}.nav.open nav{display:flex}.nav{flex-wrap:wrap}.nav-r{margin-left:0}
   .av-dock{--av-size:92px}.evrow{grid-template-columns:70px 1fr}.evrow .btn{grid-column:2}.row{grid-template-columns:1fr}.cal .d{min-height:56px}.cal .ev{font-size:10px}}
 @media(max-width:520px){.g2,.g3,.g4,.tiers{grid-template-columns:1fr}.board li{grid-template-columns:36px 1fr auto}.board .tier{display:none}}
+
+/* 3D turnaround viewer + merch filters */
+.v3d{position:relative;aspect-ratio:1;perspective:900px;cursor:grab;touch-action:pan-y;user-select:none;border-radius:12px;background:radial-gradient(circle at 50% 35%,#2a1a3a,#0d0d14 70%);outline-offset:3px}
+.v3d.grab{cursor:grabbing}
+.v3d-in{position:absolute;inset:0;transform-style:preserve-3d}
+.v3d-f{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;padding:6%}
+.v3d-f.bk{transform:rotateY(180deg)}
+.v3d-f svg,.v3d-f img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.v3d .emo{font-size:72px}
+.v3d-ui{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:6px;z-index:2}
+.v3d-ui button{background:rgba(0,0,0,.55);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font:700 12px "DM Sans";cursor:pointer}
+.v3d-ui button.on{background:var(--teal);color:#041;border-color:var(--teal)}
+.v3d-hint{position:absolute;top:8px;left:10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);transition:opacity .4s;pointer-events:none}
+.chips{display:flex;flex-wrap:wrap;gap:14px 26px;margin:20px 0 26px}.chipset{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:7px 14px;border-radius:99px;font:700 13px "DM Sans";cursor:pointer}.chip.on{background:var(--pink);border-color:var(--pink)}
+.buyrow{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.prod .badge{z-index:3}

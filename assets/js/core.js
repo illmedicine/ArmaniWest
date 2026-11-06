@@ -28,13 +28,14 @@ async function fbInit() {
 }
 
 /* ---------- Store ---------- */
+const lk = col => 'aw:' + col + (col === 'merch' ? ':v2' : '');
 function localCol(col) {
-  let c = LS.get('aw:' + col, null);
+  let c = LS.get(lk(col), null);
   if (c === null) {
     c = {};
     if (col === 'site') Object.entries(seed.site).forEach(([k, v]) => c[k] = v);
     else Object.entries(seed[col] || {}).forEach(([k, v]) => c[k] = v);
-    LS.set('aw:' + col, c);
+    LS.set(lk(col), c);
   }
   return c;
 }
@@ -55,7 +56,7 @@ export const store = {
     const f = await fbInit(); const s = await f.fs.getDoc(f.fs.doc(f.db, col, id)); return s.exists() ? { id, ...s.data() } : null;
   },
   async set(col, id, data, merge = true) {
-    if (demo) { const c = localCol(col); c[id] = merge ? { ...(c[id] || {}), ...data } : data; if (!LS.set('aw:' + col, c)) throw new Error('Browser storage is full (demo mode). Remove some media.'); return id; }
+    if (demo) { const c = localCol(col); c[id] = merge ? { ...(c[id] || {}), ...data } : data; if (!LS.set(lk(col), c)) throw new Error('Browser storage is full (demo mode). Remove some media.'); return id; }
     const f = await fbInit(); await f.fs.setDoc(f.fs.doc(f.db, col, id), data, { merge }); return id;
   },
   async add(col, data) {
@@ -64,7 +65,7 @@ export const store = {
     const f = await fbInit(); const r = await f.fs.addDoc(f.fs.collection(f.db, col), data); return r.id;
   },
   async remove(col, id) {
-    if (demo) { const c = localCol(col); delete c[id]; LS.set('aw:' + col, c); return; }
+    if (demo) { const c = localCol(col); delete c[id]; LS.set(lk(col), c); return; }
     const f = await fbInit(); await f.fs.deleteDoc(f.fs.doc(f.db, col, id));
   },
 };
