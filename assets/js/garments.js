@@ -81,6 +81,27 @@ function draw(d, side) {
       }
       return wrap(line, shape, { inner, outer }, id);
     }
+    case 'varsity': case 'vneckLS': {
+      const vs = d.type === 'vneckLS', h = vs ? 250 : 264, w = vs ? 66 : 82;
+      const shape = topShape({ w, sh: vs ? 70 : 84, h, sleeve: 'long', neck: vs ? 26 : 32, v: vs && front });
+      const slv = line === 'plaid' ? p.lapel : line === 'patent' && !vs ? accent : accent;
+      let inner = `<rect x="-10" y="0" width="${150 - w - 4}" height="320" fill="${slv}"/><rect x="${150 + w + 4}" y="0" width="${150 - w - 4 + 10}" height="320" fill="${slv}"/><path d="M${150 - w - 4},40 V300 M${150 + w + 4},40 V300" stroke="#000" stroke-opacity=".5" stroke-width="2"/>`;
+      inner += `<rect x="40" y="${h - 22}" width="220" height="24" fill="#050507"/>`;
+      if (front) inner += vs ? txt(T, 150, 150, 14, tx, 0, 1) + `<path d="M138,90 L162,112 M162,90 L138,112 M138,106 L162,128 M162,106 L138,128" stroke="${accent}" stroke-width="2"/>` : `<path d="M150,60 V${h - 22}" stroke="${p.trim}" stroke-width="2" stroke-dasharray="3 2"/>` + txt(T, 118, 124, 12, tx, 0, 1) + `<circle cx="196" cy="118" r="11" fill="${accent}"/>` + txt(T[0] || 'M', 196, 123, 13, '#050507');
+      else inner += txt(T, 150, 160, vs ? 26 : 32, tx, 0, 1) + txt('MANIAC U. · LA', 150, 126, 8, accent, 0, 4) + `<path d="M150,50 V${h - 22}" stroke="#000" stroke-opacity=".4"/>`;
+      const collar = front ? (vs ? `<path d="M124,46 L150,98 L176,46" fill="none" stroke="#050507" stroke-width="8" stroke-linejoin="round"/>` : `<rect x="118" y="38" width="64" height="14" rx="5" fill="#050507"/>`) : `<path d="M124,46 Q150,62 176,46" fill="none" stroke="#050507" stroke-width="8"/>`;
+      return wrap(line, shape, { inner, outer: collar + (vs ? '' : studs([[88, 112], [212, 112]], p.trim)) }, id);
+    }
+    case 'boots': {
+      const boot = x => `M${x},50 h46 v118 q4,22 32,34 q34,12 34,38 v22 h-112Z`;
+      const shape = boot(30) + ' ' + boot(158);
+      const strap = x => [78, 108, 138].map(y => `<rect x="${x - 2}" y="${y}" width="50" height="11" fill="#050507"/><rect x="${x + 30}" y="${y + 1}" width="10" height="9" fill="${p.trim}"/>`).join('');
+      return wrap(line, shape, { inner: `<rect x="20" y="240" width="270" height="24" fill="${accent}"/>` + (front ? strap(30) + strap(158) : `<rect x="40" y="52" width="26" height="22" fill="#050507"/>` + txt('MANIAC', 52, 160, 9, tx, -90, 2) + txt('MANIAC', 180, 160, 9, tx, -90, 2)), outer: '' }, id);
+    }
+    case 'backpack': {
+      const shape = rr(78, 64, 144, 204, 38);
+      return wrap(line, shape, { inner: (front ? `<path d="${rr(98, 160, 104, 76, 14)}" fill="#000" opacity=".3"/><rect x="108" y="178" width="84" height="12" rx="6" fill="${accent}"/>${txt(T, 150, 214, 12, tx, 0, 1)}<path d="M150,64 V150" stroke="#000" stroke-opacity=".5"/>` : `<path d="M110,90 Q104,200 120,262 M190,90 Q196,200 180,262" stroke="${p.trim}" stroke-opacity=".5" stroke-width="12" fill="none"/>${txt('MANIAC', 150, 130, 14, tx, 0, 2)}`) + `<path d="M78,150 h144" stroke="#000" stroke-opacity=".5"/>`, outer: `<path d="M118,66 Q150,12 182,66" fill="none" stroke="${p.trim}" stroke-width="8" stroke-linecap="round"/>` + (front ? studs([[100, 94], [200, 94], [100, 246], [200, 246]], p.trim) : '') }, id);
+    }
     case 'beanie': {
       const shape = 'M66,212 Q60,64 150,52 Q240,64 234,212 Z';
       let inner = rib(60, 166, 180, 56, p.trim) + `<path d="M60,166 h180" stroke="${accent}" stroke-width="2"/>`;

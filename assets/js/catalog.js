@@ -1,44 +1,42 @@
-// Starter merch catalog: three lines. Concept designs with placeholder prices.
-// Materials and final specs get confirmed with the manufacturer; swap in real photos from the portal.
+// Starter merch catalog built from the Gemini lookbook (Patent Leather / The Leather Line / The Plaid Line).
+// Concept designs with placeholder prices; final materials are confirmed with the manufacturer.
 export const LINES = { patent: 'Patent Leather', leather: 'Leather', plaid: 'Plaid' };
-const A = 'Accessories', O = 'Outerwear', T = 'Tops', B = 'Bottoms', H = 'Headwear';
+const A = 'Accessories', O = 'Outerwear', T = 'Tops', B = 'Bottoms', H = 'Headwear', S = 'Shoes';
 // [line, type, name, for, category, price, blurb, print]
 const rows = [
-  // PATENT LEATHER: mirror-gloss black, hot pink, chrome
-  ['patent', 'jacketCrop', 'Patent Cropped Moto Jacket', 'girls', O, 345, 'Mirror-shine patent finish, cropped biker cut, asymmetric zip, chrome studs.'],
-  ['patent', 'jacket', 'Patent Moto Jacket', 'guys', O, 395, 'Full-length patent biker with studded lapels. Back print: MANIAC.'],
-  ['patent', 'crop', 'Patent Tiny Tee', 'girls', T, 42, 'Baby-fit crop tee with a glossy patent-look print.', 'MANIAC'],
-  ['patent', 'vtee', 'Patent V-Neck Rock Tee', 'guys', T, 48, 'Deep V, boxy rock fit, pink lightning bolt.', 'MANIAC'],
-  ['patent', 'crophood', 'Patent Crop Hoodie', 'girls', T, 96, 'Cropped heavyweight hoodie with patent trim and chrome aglets.', 'MANIAC'],
-  ['patent', 'hoodie', 'Patent Maniac Hoodie', 'unisex', T, 105, 'Oversized hoodie, MANIAC U. back print.', 'MANIAC'],
-  ['patent', 'beanie', 'Patent Maniac Beanie', 'guys', H, 34, 'Rib-knit with a glossy pink MANIAC patch.', 'MANIAC'],
-  ['patent', 'skirt', 'Patent Pleated Mini Skirt', 'girls', B, 78, 'Micro pleats, wet-look finish, zip back.'],
-  ['patent', 'choker', 'Patent Ring Choker', 'girls', A, 28, 'Spiked patent choker with chrome O-ring.'],
-  ['patent', 'bag', 'Patent Mini Shoulder Bag', 'unisex', A, 64, 'Studded chain strap, MANIAC plate.', 'MANIAC'],
-  ['patent', 'gloves', 'Patent Fingerless Gloves', 'unisex', A, 36, 'Rave-ready fingerless gloves with studs.', 'MANIAC'],
-  // LEATHER: matte black, oxblood, silver hardware
-  ['leather', 'jacketCrop', 'Leather Cropped Biker Jacket', 'girls', O, 420, 'Cropped matte biker, silver hardware, oxblood accents.'],
-  ['leather', 'jacket', 'Leather Moto Jacket', 'guys', O, 465, 'The statement piece. Heavy matte leather look, snap collar, belted hem.'],
-  ['leather', 'crop', 'Leather Tiny Tee', 'girls', T, 44, 'Soft black baby tee, oxblood print.', 'MANIAC'],
+  // PATENT LEATHER LINE: kawaii glossy goth, girly rave
+  ['patent', 'varsity', 'Patent Hooded Leatherman Jacket', 'unisex', O, 395, 'Glossy black patent body, hot-pink sleeves, ARMANI WEST chest print, MANIAC back print.', 'ARMANI WEST'],
+  ['patent', 'crophood', 'Cropped Patent Leather Hoodie', 'girls', T, 98, 'Pink hooded top with black patent sleeves and a big W.', 'W'],
+  ['patent', 'skirt', 'Patent Pleated Micro Mini Skirt', 'girls', B, 78, 'Hot-pink patent pleats, black belt and draped chains.'],
+  ['patent', 'beanie', 'Patent Leather Beanie', 'unisex', H, 34, 'Pink rib knit with a glossy ARMANI WEST tab.', 'ARMANI WEST'],
+  ['patent', 'bag', 'Patent Leather Duffle Bag', 'unisex', A, 88, 'Glossy pink duffle with black trim and ARMANI WEST lettering.', 'ARMANI WEST'],
+  ['patent', 'vneckLS', 'Patent Paneled V-Neck', 'guys', T, 62, 'Long-sleeve V-neck with glossy black and pink panels.', 'MANIAC'],
+  ['patent', 'boots', 'Patent Buckle Boots', 'girls', S, 145, 'Pink patent platform boots with triple black buckle straps.', 'MANIAC'],
+  ['patent', 'jacket', 'Patent Moto Jacket', 'guys', O, 395, 'Mirror-shine biker with studded lapels and a MANIAC back print.'],
+  // THE LEATHER LINE: sassy cyber-dystopian, studded, feminine
+  ['leather', 'varsity', 'Oversized Heavy Leatherman Jacket', 'unisex', O, 465, 'Pink and black leather panels, MANIACS chest print, number 20 sleeve.', 'MANIACS'],
+  ['leather', 'jacketCrop', 'Distressed Leather Moto Jacket', 'girls', O, 420, 'Cropped pink-and-black biker, distressed finish, silver hardware.'],
+  ['leather', 'crop', 'Tiny Distressed Graphic Tee', 'girls', T, 44, 'Black baby tee with pink sleeve trim and a MANIAC graphic.', 'MANIAC'],
+  ['leather', 'choker', 'Studded Leather Choker', 'girls', A, 28, 'Pink studded choker with name plate and O-ring.'],
+  ['leather', 'belt', 'Harness Chain Belt', 'unisex', A, 46, 'Draped silver chains with O-rings and a MANIAC buckle.'],
+  ['leather', 'vneckLS', 'Lace-Up Deep V-Neck Rock Shirt', 'unisex', T, 58, 'Pink and black deep V with lace-up chest.', 'MANIAC'],
+  ['leather', 'backpack', 'Heavy-Duty Leather Backpack', 'unisex', A, 125, 'Pink and black backpack with buckled front pocket.', 'MANIAC'],
+  ['leather', 'beanie', 'Distressed Leather Beanie', 'unisex', H, 34, 'Black knit with a distressed leather AW patch.', 'AW'],
+  ['leather', 'jacket', 'Leather Moto Jacket', 'guys', O, 465, 'Heavy matte biker, snap collar, belted hem.'],
   ['leather', 'vtee', 'Leather V-Neck Rock Tee', 'guys', T, 48, 'Washed black V-neck with oxblood bolt.', 'MANIAC'],
-  ['leather', 'crophood', 'Leather Crop Hoodie', 'girls', T, 98, 'Cropped hoodie with studded pocket line.', 'MANIAC'],
-  ['leather', 'hoodie', 'Maniac U. Hoodie', 'unisex', T, 105, 'Campus-meets-dystopia heavyweight hoodie.', 'MANIAC'],
-  ['leather', 'beanie', 'Leather Patch Beanie', 'guys', H, 34, 'Black rib knit, oxblood leather-look patch.', 'MANIAC'],
-  ['leather', 'skirt', 'Leather Mini Skirt', 'girls', B, 82, 'High-waist mini, matte finish, front stud.'],
-  ['leather', 'belt', 'Chain Belt', 'unisex', A, 46, 'Draped silver chain with MANIAC buckle.'],
-  ['leather', 'gloves', 'Studded Leather Gloves', 'unisex', A, 52, 'Fingerless, studded knuckle, ribbed cuff.', 'MANIAC'],
-  // PLAID: goth schoolgirl x varsity. Pink/teal tartan on black
-  ['plaid', 'jacketCrop', 'Plaid Panel Moto Jacket', 'girls', O, 380, 'Tartan body, black leather-look lapels and belt, silver studs.'],
-  ['plaid', 'jacket', 'Plaid Panel Biker Jacket', 'guys', O, 410, 'Tartan panels with black collar and hem. Back print: MANIAC.'],
-  ['plaid', 'crop', 'Plaid Tiny Tee', 'girls', T, 40, 'Cropped baby tee with a tartan chest stripe.', 'MANIAC'],
-  ['plaid', 'vtee', 'Plaid V-Neck Rock Tee', 'guys', T, 46, 'Tartan V-neck with a teal bolt.', 'MANIAC'],
-  ['plaid', 'crophood', 'Plaid Crop Hoodie', 'girls', T, 92, 'Cropped hoodie in tartan, black ribbing.', 'MANIAC'],
+  // THE PLAID LINE: high-polished goth schoolgirl and college plaid
+  ['plaid', 'varsity', 'Oversized Plaid Leatherman Jacket', 'unisex', O, 410, 'Pink and black plaid body, black leather sleeves, varsity M patch.', 'MANIAC'],
+  ['plaid', 'skirt', 'Pleated Plaid Micro-Mini Skirt', 'girls', B, 70, 'The schoolgirl staple, goth edition.'],
+  ['plaid', 'crophood', 'Plaid Cropped Hoodie', 'girls', T, 92, 'Cropped pink plaid hoodie with MANIACS across the chest.', 'MANIACS'],
+  ['plaid', 'crop', 'Plaid Tiny Tee (Baby Tee)', 'girls', T, 40, 'Black and pink plaid baby tee, ARMANI WEST in white.', 'ARMANI WEST'],
+  ['plaid', 'vneckLS', 'Guys\' Plaid Paneled V-Neck', 'guys', T, 62, 'Plaid and black color-block long-sleeve V-neck.', 'MANIAC'],
+  ['plaid', 'beanie', 'Plaid Beanie', 'unisex', H, 32, 'Pink plaid knit with an ARMANI WEST tab.', 'ARMANI WEST'],
+  ['plaid', 'backpack', 'Plaid & Leather Rave Cargo Backpack', 'unisex', A, 120, 'Plaid body, black leather trim, cargo pockets.', 'MANIAC'],
   ['plaid', 'hoodie', 'Plaid Maniac Hoodie', 'unisex', T, 100, 'Tartan hoodie, MANIAC U. back print.', 'MANIAC'],
-  ['plaid', 'beanie', 'Plaid Maniac Beanie', 'guys', H, 32, 'Tartan beanie with a teal patch.', 'MANIAC'],
-  ['plaid', 'skirt', 'Plaid Pleated Mini Skirt', 'girls', B, 70, 'The schoolgirl staple, goth edition. Zip side, chain loop.'],
+  ['plaid', 'vtee', 'Plaid V-Neck Rock Tee', 'guys', T, 46, 'Tartan V-neck with a teal bolt.', 'MANIAC'],
   ['plaid', 'pinafore', 'Plaid Pinafore', 'girls', B, 88, 'Tiny tartan pinafore with studded straps.'],
   ['plaid', 'socks', 'Plaid Knee Socks', 'girls', A, 22, 'Over-the-knee ribbed socks, MANIAC up the leg.', 'MANIAC'],
-  ['plaid', 'choker', 'Plaid Tie Choker', 'girls', A, 24, 'Tartan choker with ring and studs.'],
+  ['plaid', 'jacketCrop', 'Plaid Panel Moto Jacket', 'girls', O, 380, 'Tartan body with black leather-look lapels and belt.'],
 ];
 export const CATALOG = Object.fromEntries(rows.map(([line, type, name, who, cat, price, blurb, text], i) => [
   `${line}-${type}-${i}`,
