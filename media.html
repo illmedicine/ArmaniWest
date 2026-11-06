@@ -11,15 +11,23 @@
 </head>
 <body>
 <main class="wrap">
-  <p class="eyebrow">Photos &amp; moments</p>
-  <h1 class="sec-t">The <i>gallery</i></h1>
-  <div class="gallery" id="g"></div>
+  <p class="eyebrow">Watch &amp; look</p>
+  <h1 class="sec-t">The <i>media</i></h1>
+  <section id="vsec" hidden><h2 class="sub-t">Videos</h2><div class="vgrid" id="yts"></div></section>
+  <section id="csec" hidden><h2 class="sub-t">Clips</h2><div class="cgrid" id="clips"></div></section>
+  <section id="psec" hidden><h2 class="sub-t">Photos</h2><div class="gallery" id="g"></div></section>
 </main>
 <script type="module">
 import { boot, store, esc, $ } from './assets/js/core.js';
 await boot('media');
-const m = await store.list('media', { orderBy: 'ts' });
-$('#g').innerHTML = m.map(x => `<figure><img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy"><figcaption>${esc(x.caption)}</figcaption></figure>`).join('') || '<p class="note">Nothing here yet.</p>';
+const all = (await store.list('media', { orderBy: 'ts' })).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+const yts = all.filter(x => x.type === 'youtube' && x.yt), clips = all.filter(x => x.type === 'clip' && x.mp4), pics = all.filter(x => x.src);
+$('#yts').innerHTML = yts.map(v => `<figure class="vid"><button class="vplay" data-yt="${esc(v.yt)}" aria-label="Play ${esc(v.caption)}"><img src="https://img.youtube.com/vi/${esc(v.yt)}/hqdefault.jpg" alt="" loading="lazy"><span class="pbtn"></span></button><figcaption>${esc(v.caption)}</figcaption></figure>`).join('');
+$('#clips').innerHTML = clips.map(v => `<figure class="clip"><video src="${esc(v.mp4)}" poster="${esc(v.poster || '')}" preload="none" playsinline controls></video><figcaption>${esc(v.caption)}</figcaption></figure>`).join('');
+$('#g').innerHTML = pics.map(x => `<figure><img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy"><figcaption>${esc(x.caption)}</figcaption></figure>`).join('');
+$('#vsec').hidden = !yts.length; $('#csec').hidden = !clips.length; $('#psec').hidden = !pics.length;
+$('#yts').onclick = e => { const b = e.target.closest('.vplay'); if (!b) return; b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0" title="Video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`; };
+document.addEventListener('play', e => { document.querySelectorAll('.clip video').forEach(v => { if (v !== e.target) v.pause(); }); }, true);
 $('#g').onclick = e => { const i = e.target.closest('img'); if (!i) return; const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = `<img src="${i.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); };
 </script>
 </body>

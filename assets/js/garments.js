@@ -168,7 +168,7 @@ export function mountViewer(el, product) {
   const clampS = r => Math.max(-LIM, Math.min(LIM, r));
   el.addEventListener('pointerdown', e => { drag = true; moved = 0; sx = e.clientX; start = rot; el.setPointerCapture(e.pointerId); el.classList.add('grab'); hint.style.opacity = 0; });
   el.addEventListener('pointermove', e => { if (!drag) return; moved = Math.max(moved, Math.abs(e.clientX - sx)); const r = start + (e.clientX - sx) * 0.9; set(single ? clampS(r) : r); });
-  const end = () => { if (!drag) return; drag = false; el.classList.remove('grab'); if (single) return set(0, true); moved < 5 ? set(rot + 180, true) : set(Math.round(rot / 180) * 180, true); };
+  const end = () => { if (!drag) return; drag = false; el.classList.remove('grab'); if (moved < 5) { el.dispatchEvent(new CustomEvent('viewer:open', { bubbles: true })); return single ? set(0, true) : set(Math.round(rot / 180) * 180, true); } if (single) return set(0, true); set(Math.round(rot / 180) * 180, true); };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
   el.addEventListener('keydown', e => { if (single) { set(e.key === 'ArrowRight' ? LIM : e.key === 'ArrowLeft' ? -LIM : 0, true); setTimeout(() => set(0, true), 500); return; } if (e.key === 'ArrowRight') set(Math.round(rot / 180) * 180 + 180, true); if (e.key === 'ArrowLeft') set(Math.round(rot / 180) * 180 - 180, true); });
   // gentle first-view nudge so people know it turns

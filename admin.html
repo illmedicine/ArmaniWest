@@ -79,13 +79,15 @@ async function Overview(p) {
 async function Media(p) {
   const items = await store.list('media', { orderBy: 'ts' });
   p.innerHTML = `<div class="card"><h3>Upload from your device</h3><p class="note">Photos are resized automatically. They appear on the Media page and home page right away.</p><input type="file" id="files" accept="image/*" multiple><label for="cap">Caption (optional)</label><input id="cap"><p id="st" class="note"></p></div>
-    <div class="thumbs" style="margin-top:20px">${items.map(m => `<figure><img src="${esc(m.src)}" alt=""><button class="btn sm danger" data-del="${esc(m.id)}">✕</button><figcaption class="note">${esc(m.caption)}</figcaption></figure>`).join('')}</div>`;
+    <div class="card" style="margin-top:16px"><h3>Add a YouTube video</h3><p class="note">Paste a YouTube link. It plays on the Media page.</p><div class="row"><div><label for="yt">YouTube link</label><input id="yt" type="url" placeholder="https://youtu.be/..."></div><div><label for="ytc">Title</label><input id="ytc"></div></div><button class="btn primary" id="ytadd" style="margin-top:14px">Add video</button></div>
+    <div class="thumbs" style="margin-top:20px">${items.map(m => `<figure><img src="${esc(m.src || m.poster || (m.yt ? 'https://img.youtube.com/vi/' + m.yt + '/hqdefault.jpg' : ''))}" alt=""><button class="btn sm danger" data-del="${esc(m.id)}">✕</button><figcaption class="note">${esc(m.caption)}</figcaption></figure>`).join('')}</div>`;
   $('#files').onchange = async e => {
     const fs = [...e.target.files]; let n = 0;
     for (const f of fs) { $('#st').textContent = `Uploading ${++n} of ${fs.length}...`; try { await store.add('media', { src: await compressImage(f), caption: $('#cap').value.trim() || f.name.replace(/\.\w+$/, ''), ts: Date.now() }); } catch (err) { toast(err.message || 'Upload failed'); break; } }
     toast('Uploaded'); Media(p);
   };
-  p.onclick = async e => { const id = e.target.dataset?.del; if (id && confirm('Delete this photo?')) { await store.remove('media', id); Media(p); } };
+  $('#ytadd').onclick = async () => { const m = $('#yt').value.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); if (!m) return toast('That does not look like a YouTube link'); await store.add('media', { type: 'youtube', yt: m[1], caption: $('#ytc').value.trim() || 'Video', ts: Date.now() }); toast('Video added'); Media(p); };
+  p.onclick = async e => { const id = e.target.dataset?.del; if (id && confirm('Delete this item?')) { await store.remove('media', id); Media(p); } };
 }
 
 /* ---- Blog ---- */
