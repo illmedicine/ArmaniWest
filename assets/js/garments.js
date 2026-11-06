@@ -143,7 +143,11 @@ function draw(d, side) {
 }
 
 export function faces(m) {
-  if (m.image) return { front: `<img src="${esc(m.image)}" alt="${esc(m.name)} front" draggable="false">`, back: `<img src="${esc(m.imageBack || m.image)}" alt="${esc(m.name)} back" draggable="false">` };
+  if (m.image || m.imageBack) {
+    const im = (s, a) => `<img class="photo" src="${esc(s)}" alt="${esc(m.name)} ${a}" draggable="false">`;
+    const f = m.image ? im(m.image, 'front') : null, b = m.imageBack ? im(m.imageBack, 'back') : null;
+    return { front: f || b, back: b, single: !(f && b) };
+  }
   if (m.design) {
     // Drop real/AI product photos at assets/img/merch/<id>-front.jpg and -back.jpg; they cover the drawn preview.
     const ph = s => m.id ? `<img class="ph" src="assets/img/merch/${esc(m.id)}-${s}.jpg" alt="${esc(m.name)} ${s}" draggable="false" onerror="this.remove()">` : '';
@@ -154,8 +158,9 @@ export function faces(m) {
 
 // Interactive turnaround: drag to rotate, tap to flip, buttons + arrow keys.
 export function mountViewer(el, product) {
-  const { front, back } = faces(product);
+  const { front, back, single } = faces(product);
   el.classList.add('v3d'); el.tabIndex = 0; el.setAttribute('role', 'group'); el.setAttribute('aria-label', product.name + ': drag or use arrow keys to turn');
+  if (single) { el.classList.add('single'); el.style.cursor = 'default'; el.removeAttribute('tabindex'); el.setAttribute('aria-label', product.name); el.innerHTML = `<div class="v3d-in"><div class="v3d-f">${front}</div></div><span class="v3d-hint">${product.image ? 'front view' : 'back view'}</span>`; return; }
   el.innerHTML = `<div class="v3d-in"><div class="v3d-f">${front}</div><div class="v3d-f bk">${back}</div></div><div class="v3d-ui"><button type="button" data-s="0">Front</button><button type="button" data-s="1">Back</button></div><span class="v3d-hint">drag to turn</span>`;
   const inn = el.querySelector('.v3d-in'), hint = el.querySelector('.v3d-hint'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let rot = 0, drag = false, sx = 0, start = 0, moved = 0;

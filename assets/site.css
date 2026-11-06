@@ -153,3 +153,12 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .buyrow{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
 .prod .badge{z-index:3}
 .v3d-f img.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px}
+
+/* logos + photo merch */
+.brand{display:inline-flex;align-items:center;gap:.5em}.brand img{height:30px;width:auto}
+.hero-crest{width:clamp(110px,16vw,170px);height:auto;margin:0 0 6px;filter:drop-shadow(0 0 18px rgba(255,79,163,.35))}
+.merch-w{width:84px;height:auto;margin-bottom:6px;filter:drop-shadow(0 0 16px rgba(255,79,163,.4))}
+.foot-crest{width:84px;height:auto;display:block;margin-bottom:8px}
+.v3d-f img.photo{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.v3d-f:has(img.photo){padding:0}
+.v3d.single .v3d-hint{opacity:.7}
