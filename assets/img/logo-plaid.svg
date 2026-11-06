@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240"><defs><pattern id="t" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#ff8fcb"/><rect width="14" height="3" y="2" fill="#15121a"/><rect width="3" height="14" x="2" fill="#15121a"/><rect width="14" height="1" y="9" fill="#fff"/><rect width="1" height="14" x="9" fill="#fff"/></pattern></defs>
-<g fill="none" stroke="#f3eee3" stroke-width="3" stroke-linecap="round"><path d="M34,70 Q10,140 60,205"/><path d="M166,70 Q190,140 140,205"/><path d="M26,95 q-10,4 -8,14 M22,125 q-10,4 -6,14 M30,155 q-8,6 -2,16 M174,95 q10,4 8,14 M178,125 q10,4 6,14 M170,155 q8,6 2,16" stroke-width="5"/></g>
-<g stroke="#15121a" stroke-width="4" stroke-linejoin="round"><polygon fill="#f3eee3" points="68,36 76,16 90,30 100,10 110,30 124,16 132,36"/>
-<path fill="url(#t)" d="M52,48 H148 V130 Q148,185 100,214 Q52,185 52,130 Z"/></g>
-<path d="M100,48 V214 M52,120 H148" stroke="#f3eee3" stroke-width="4"/>
-<text x="76" y="100" font-family="Georgia,serif" font-weight="700" font-size="34" fill="#15121a" stroke="#f3eee3" stroke-width="2" paint-order="stroke">M</text>
-<text x="108" y="168" font-family="Georgia,serif" font-weight="700" font-size="34" fill="#15121a" stroke="#f3eee3" stroke-width="2" paint-order="stroke">AW</text></svg>
