@@ -47,14 +47,28 @@ import { mountAvatar } from './assets/js/avatar.js';
 await boot('about');
 const av = mountAvatar($('#heroAv'));
 let t = 0; setInterval(() => av.random(['hipSway', 'wave', 'bounce', 'shimmy', 'headbop'], { dir: (t++ % 2) ? 1 : -1 }), 3200);
-const a = (await store.get('site', 'about')) || {};
-$('#pull').innerHTML = `<b>${esc(a.pull || 'Teal hair. Fur ears. A basketball under one arm.')}</b>`;
-$('#intro').innerHTML = md(a.intro || 'Armani West is a Los Angeles rapper and recording artist whose world runs on teal hair, fur ears and basketball. Her single "basketball" is the song of the summer, and her fans, the Maniacs, run the show.\n\nHere is the story, in her own words.');
+const DEF = {
+  pull: `Teal hair. Fur ears. A basketball under one arm.`,
+  intro: `Armani West is a Los Angeles rapper, actor and creator who calls herself the princess of rap. She built her following freestyling live online, then turned it into mixtapes, a global streaming hit and a fan army called the Maniacs.
+
+Her single "basketball" has its own music video, and her debut studio album, "She's The MAN", is on the way.`,
+  upbringing: `Armani grew up in a small town in Ohio. She took her first hip hop classes at nine, wrote fan fiction at ten and filled summer camp notebooks with poems. Being turned away from big-name auditions never slowed her down. She decided early that she would follow her dreams and that Los Angeles was where she would do it.
+
+She moved to Hollywood for an arts college at eighteen and lived what she calls her Victorious dream: classes, friends and a city full of possibility.`,
+  acting: `Acting came first. Armani studied it every day in Hollywood and was working toward a degree in it when rap took over. She says she did not give music her full attention at first, and that the stage and the camera now feed each other.`,
+  music: `It started with freestyles on live. Real fans showed up, then label CEOs and A&Rs, and she left school to go all in: months of recording until 6 a.m., releasing, promoting and selling her own music. She dropped her hit mixtape, followed it with more projects, and watched her breakout record climb worldwide playlists to millions of streams.
+
+Now living in Los Angeles full time, she is preparing her debut studio album, "She's The MAN". Catch "basketball", "Piano Tiles", "maneater" and "A.i" on streaming and YouTube.`,
+};
+const stored = (await store.get('site', 'about')) || {};
+const a = { ...DEF, ...Object.fromEntries(Object.entries(stored).filter(([, v]) => v)) };
+$('#pull').innerHTML = `<b>${esc(a.pull)}</b>`;
+$('#intro').innerHTML = md(a.intro);
 const ch = [
-  ['01', 'Upbringing', a.upbringing, 'Where she grew up, the people who raised her, the moment she knew she was an artist.'],
-  ['02', 'Modeling', a.modeling, 'How modeling started, favorite shoots, the looks that define her.'],
-  ['03', 'Acting', a.acting, 'Roles, training, what the camera taught her.'],
-  ['04', 'Recording artist', a.music, '"basketball", "maneater", "A.i" and what is coming next.'],
+  ['01', 'Upbringing', a.upbringing],
+  ['02', 'Modeling', a.modeling],
+  ['03', 'Acting', a.acting],
+  ['04', 'Recording artist', a.music],
 ];
 $('#chapters').innerHTML = ch.filter(c => c[2]).map(([n, t, body, hint]) => `<div class="chap"><div class="no">${n}</div><div><h3>${t}</h3>${body ? `<div class="prose" style="margin:0">${md(body)}</div>` : ''}</div></div>`).join('');
 </script>
