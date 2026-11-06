@@ -56,7 +56,7 @@ const ch = [
   ['03', 'Acting', a.acting, 'Roles, training, what the camera taught her.'],
   ['04', 'Recording artist', a.music, '"basketball", "maneater", "A.i" and what is coming next.'],
 ];
-$('#chapters').innerHTML = ch.map(([n, t, body, hint]) => `<div class="chap"><div class="no">${n}</div><div><h3>${t}</h3>${body ? `<div class="prose" style="margin:0">${md(body)}</div>` : `<div class="draft">Draft slot: ${esc(hint)} Armani adds this from her portal (Site &rarr; About).</div>`}</div></div>`).join('');
+$('#chapters').innerHTML = ch.map(([n, t, body, hint]) => `<div class="chap"><div class="no">${n}</div><div><h3>${t}</h3>${body ? `<div class="prose" style="margin:0">${md(body)}</div>` : `<div class="draft">Coming soon.</div>`}</div></div>`).join('');
 </script>
 </body>
 </html>

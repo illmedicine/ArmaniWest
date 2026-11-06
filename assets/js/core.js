@@ -28,7 +28,7 @@ async function fbInit() {
 }
 
 /* ---------- Store ---------- */
-const lk = col => 'aw:' + col + (col === 'merch' ? ':v3' : '');
+const lk = col => 'aw:' + col + ':v4';
 function localCol(col) {
   let c = LS.get(lk(col), null);
   if (c === null) {
@@ -56,7 +56,7 @@ export const store = {
     const f = await fbInit(); const s = await f.fs.getDoc(f.fs.doc(f.db, col, id)); return s.exists() ? { id, ...s.data() } : null;
   },
   async set(col, id, data, merge = true) {
-    if (demo) { const c = localCol(col); c[id] = merge ? { ...(c[id] || {}), ...data } : data; if (!LS.set(lk(col), c)) throw new Error('Browser storage is full (demo mode). Remove some media.'); return id; }
+    if (demo) { const c = localCol(col); c[id] = merge ? { ...(c[id] || {}), ...data } : data; if (!LS.set(lk(col), c)) throw new Error('Storage is full. Remove some media.'); return id; }
     const f = await fbInit(); await f.fs.setDoc(f.fs.doc(f.db, col, id), data, { merge }); return id;
   },
   async add(col, data) {
@@ -78,21 +78,16 @@ export const auth = {
   get isAdmin() { return !!user && (demo || cfg.adminEmails.map(e => e.toLowerCase()).includes((user.email || '').toLowerCase())); },
   onChange(cb) { listeners.add(cb); cb(user); return () => listeners.delete(cb); },
   async signIn() {
-    if (demo) {
-      const name = prompt('DEMO MODE: no real Google sign-in yet.\nEnter a name to try the member experience:', 'Test Fan');
-      if (!name) return;
-      user = { uid: 'demo-' + name.toLowerCase().replace(/\W+/g, '-'), displayName: name, email: name.toLowerCase().replace(/\W+/g, '.') + '@demo.local', photoURL: '' };
-      LS.set('aw:demoUser', user); emit(); return;
-    }
+    if (demo) return;
     const f = await fbInit(); await f.auth.signInWithPopup(f.authInst, new f.auth.GoogleAuthProvider());
   },
   async signOut() {
-    if (demo) { user = null; LS.set('aw:demoUser', null); emit(); return; }
+    if (demo) { user = null; emit(); return; }
     const f = await fbInit(); await f.auth.signOut(f.authInst);
   },
 };
 async function initAuth() {
-  if (demo) { user = LS.get('aw:demoUser', null); emit(); return; }
+  if (demo) { user = null; emit(); return; }
   const f = await fbInit();
   f.auth.onAuthStateChanged(f.authInst, u => { user = u ? { uid: u.uid, displayName: u.displayName, email: u.email, photoURL: u.photoURL } : null; emit(); });
 }
@@ -202,7 +197,7 @@ export async function boot(page) {
   foot.innerHTML = `<div class="foot-in"><div><img class="foot-crest" src="assets/img/logo-crest.png" alt="Armani West crest" loading="lazy"><b class="brand">ARMANI<span>WEST</span></b><p>Official home. Los Angeles.</p></div>
     <div class="foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="privacy.html">Privacy</a><a href="admin.html">Portal</a></div>
     <div class="foot-soc"><a href="https://instagram.com/armaniwesttt" target="_blank" rel="noopener">IG</a><a href="https://snapchat.com/add/armaniwesttt" target="_blank" rel="noopener">SNAP</a><a href="https://tiktok.com/@armaniwestt" target="_blank" rel="noopener">TT</a><a href="https://youtube.com/@armaniwestt" target="_blank" rel="noopener">YT</a><a href="https://twitch.tv/${cfg.twitchChannel}" target="_blank" rel="noopener">TWITCH</a></div></div>
-    <p class="fine">&copy; ${new Date().getFullYear()} Armani West. ${demo ? 'Preview build: demo data lives in your browser only.' : ''}</p>`;
+    <p class="fine">&copy; ${new Date().getFullYear()} Armani West. </p>`;
   document.body.appendChild(foot);
 
   // Avatar dock (fixed to the side, reacts to scroll + clicks)
@@ -212,6 +207,7 @@ export async function boot(page) {
   }
 
   const btn = $('#authbtn');
+  if (demo) btn.hidden = true;
   auth.onChange(u => { btn.textContent = u ? `${(u.displayName || 'Me').split(' ')[0]} · Sign out` : 'Join / Sign in'; });
   btn.onclick = async () => { if (auth.user) { await auth.signOut(); toast('Signed out'); } else { await auth.signIn(); if (auth.user) { await loadMember(); toast('Welcome in!'); } } };
   await initAuth();

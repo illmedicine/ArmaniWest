@@ -1,22 +1,12 @@
-// Demo-mode starter content. Anything flagged sample:true is placeholder and shows a SAMPLE badge.
+// Initial site content.
 import { CATALOG } from './catalog.js';
 const day = 86400000, now = Date.now();
 const iso = n => new Date(now + n * day).toISOString().slice(0, 10);
 
 export const seed = {
-  events: {
-    e1: { title: 'Release Party: "basketball"', date: iso(9), time: '8:00 PM', venue: 'Venue TBA', city: 'Los Angeles, CA', link: '', sample: true },
-    e2: { title: 'Maniacs Meet & Greet', date: iso(21), time: '6:00 PM', venue: 'Venue TBA', city: 'Los Angeles, CA', link: '', sample: true },
-    e3: { title: 'Live on Twitch: Q&A', date: iso(14), time: '7:00 PM', venue: 'Online', city: 'twitch.tv/armaniwestttt', link: 'https://twitch.tv/armaniwestttt', sample: true },
-  },
+  events: {},
   merch: CATALOG,
-  posts: {
-    welcome: {
-      title: 'Welcome to the official site', slug: 'welcome', published: true, ts: now - day,
-      excerpt: 'New home, new era. Here is what is coming.',
-      body: 'This is the new official home for everything Armani West.\n\n## What is here\n\nMusic, merch, events, Cameo-style requests, the fan map, and the **Fanboys** leaderboard for members.\n\n## What is next\n\nNew music, behind-the-scenes, and drops for members first.\n\n*(Sample post. Replace it from the portal.)*',
-    },
-  },
+  posts: {},
   media: {
     p1: { src: 'assets/img/snap/snap-a.jpg', caption: 'Locker room', ts: now - 5 * day },
     p2: { src: 'assets/img/snap/snap-b.jpg', caption: 'Courtside', ts: now - 4 * day },
@@ -32,18 +22,8 @@ export const seed = {
     },
     live: { on: false, title: '', url: '' },
   },
-  private: { contact: { phone: '(set in the admin portal)' } },
-  board: {
-    s1: { handle: 'Maniac #001', points: 1840, sample: true }, s2: { handle: 'Westie Kay', points: 1220, sample: true },
-    s3: { handle: 'LA Court Kid', points: 760, sample: true }, s4: { handle: 'Basketball Baby', points: 410, sample: true },
-    s5: { handle: 'Teal Hair Gang', points: 180, sample: true },
-  },
-  pins: {
-    s1: { handle: 'Maniac #001', city: 'Los Angeles', lat: 34.1, lng: -118.2, sample: true },
-    s2: { handle: 'Westie Kay', city: 'Atlanta', lat: 33.7, lng: -84.4, sample: true },
-    s3: { handle: 'LA Court Kid', city: 'Chicago', lat: 41.9, lng: -87.6, sample: true },
-    s4: { handle: 'Basketball Baby', city: 'London', lat: 51.5, lng: -0.1, sample: true },
-  },
+  private: {},
+  board: {}, pins: {},
   visitors: {}, requests: {}, members: {}, presence: {}, adminpin: {},
 };
 

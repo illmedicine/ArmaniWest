@@ -25,7 +25,7 @@ async function sha(s) { const b = await crypto.subtle.digest('SHA-256', new Text
 const tries = () => LS.get('aw:pinTries', { n: 0, until: 0 });
 
 function gate() {
-  if (!auth.user) { root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:28px">Armani's Portal</h1><p class="note">Private. Sign in with the authorized Google account.</p><button class="btn primary" id="go">Continue with Google</button></div>`; $('#go').onclick = () => auth.signIn(); return; }
+  if (!auth.user) { root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:28px">Armani's Portal</h1><p class="note">Private. Sign in with the authorized Google account.</p>${demo ? '' : '<button class="btn primary" id="go">Continue with Google</button>'}</div>`; if (!demo) $('#go').onclick = () => auth.signIn(); return; }
   if (!auth.isAdmin) { root.innerHTML = `<div class="lock card"><h1 class="disp" style="font-size:24px">Not authorized</h1><p class="note">${esc(auth.user.email)} does not have portal access.</p><button class="btn" id="out">Sign out</button></div>`; $('#out').onclick = () => auth.signOut(); return; }
   if (sessionStorage.getItem('aw:pinok') === auth.user.uid) return dash();
   pinScreen();
@@ -50,7 +50,7 @@ async function pinScreen() {
 /* ---- Dashboard shell ---- */
 const TABS = ['Overview', 'Media', 'Blog', 'Events', 'Merch', 'Requests', 'Site'];
 function dash(tab = 'Overview') {
-  root.innerHTML = `<p class="eyebrow">${demo ? 'DEMO MODE: data stays in this browser' : 'Signed in as ' + esc(auth.user.email)}</p><h1 class="sec-t">Portal</h1>
+  root.innerHTML = `<p class="eyebrow">Signed in as ${esc(auth.user.email)}</p><h1 class="sec-t">Portal</h1>
     <div class="tabs">${TABS.map(t => `<button data-t="${t}" class="${t === tab ? 'on' : ''}">${t}</button>`).join('')}<button id="lockbtn">Lock</button></div><div id="pane"></div>`;
   $$('.tabs [data-t]').forEach(b => b.onclick = () => dash(b.dataset.t));
   $('#lockbtn').onclick = () => { sessionStorage.removeItem('aw:pinok'); gate(); };
@@ -110,7 +110,7 @@ async function Blog(p, edit) {
 async function Events(p) {
   const evs = await store.list('events', { orderBy: 'date', dir: 'asc' });
   p.innerHTML = `<div class="card"><h3>Add event / concert</h3><div class="row">${field('t', 'Title')}${field('d', 'Date', '', 'date')}</div><div class="row">${field('tm', 'Time', '', 'text', 'placeholder="8:00 PM"')}${field('v', 'Venue')}</div><div class="row">${field('c', 'City')}${field('l', 'Ticket / info link', '', 'url')}</div><button class="btn primary" id="add" style="margin-top:14px">Add event</button></div>
-    <h3 style="margin:26px 0 10px">All events</h3>${evs.map(x => `<div class="evrow" style="grid-template-columns:110px 1fr auto"><div class="dt">${esc(x.date)}</div><div><b>${esc(x.title)}</b>${x.sample ? ' <span class="note">(sample)</span>' : ''}<div class="note">${esc(x.venue)} · ${esc(x.city)}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
+    <h3 style="margin:26px 0 10px">All events</h3>${evs.map(x => `<div class="evrow" style="grid-template-columns:110px 1fr auto"><div class="dt">${esc(x.date)}</div><div><b>${esc(x.title)}</b><div class="note">${esc(x.venue)} · ${esc(x.city)}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
   $('#add').onclick = async () => { if (!$('#t').value || !$('#d').value) return toast('Title and date needed'); await store.add('events', { title: $('#t').value.trim(), date: $('#d').value, time: $('#tm').value.trim(), venue: $('#v').value.trim(), city: $('#c').value.trim(), link: $('#l').value.trim() }); toast('Added'); Events(p); };
   p.onclick = async e => { const id = e.target.dataset?.del; if (id) { await store.remove('events', id); Events(p); } };
 }
@@ -119,11 +119,11 @@ async function Events(p) {
 async function Merch(p) {
   const items = (await store.list('merch')).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
   const sel = (id, label, opts) => `<label for="${id}">${label}</label><select id="${id}">${opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
-  p.innerHTML = `<div class="card"><h3>Starter catalog</h3><p class="note">Loads the Patent Leather, Leather and Plaid lines (${Object.keys(CATALOG).length} lookbook pieces with photos). Skips anything already loaded.</p><button class="btn primary" id="seedcat">Load starter catalog</button></div>
+  p.innerHTML = `<div class="card"><h3>Catalog</h3><p class="note">Loads the Patent Leather, Leather and Plaid lines (${Object.keys(CATALOG).length} lookbook pieces with photos). Skips anything already loaded.</p><button class="btn primary" id="seedcat">Load catalog</button></div>
     <div class="card" style="margin-top:16px"><h3>Add product</h3><div class="row">${field('n', 'Name')}${field('pr', 'Price', '', 'text', 'placeholder="$30"')}</div><div class="row">${sel('ln', 'Line', Object.entries(LINES))}${sel('fo', 'For', [['girls', 'Girls'], ['guys', 'Guys'], ['unisex', 'Unisex']])}</div><div class="row">${sel('ca', 'Category', ['Outerwear', 'Tops', 'Headwear', 'Bottoms', 'Shoes', 'Accessories'].map(x => [x, x]))}${sel('ty', 'Preview shape (if no photos)', [['varsity', 'Varsity jacket'], ['vneckLS', 'Long-sleeve V-neck'], ['boots', 'Boots'], ['backpack', 'Backpack'], ['crop', 'Tiny tee'], ['vtee', 'V-neck tee'], ['hoodie', 'Hoodie'], ['crophood', 'Crop hoodie'], ['jacket', 'Jacket (guys)'], ['jacketCrop', 'Jacket (girls)'], ['beanie', 'Beanie'], ['skirt', 'Skirt'], ['pinafore', 'Pinafore'], ['choker', 'Choker'], ['bag', 'Bag'], ['gloves', 'Gloves'], ['socks', 'Socks'], ['belt', 'Belt']])}</div>
       ${field('bl', 'Short description')}${field('lk', 'Checkout link (Shopify, Stripe link, etc.)', '', 'url')}
-      <div class="row"><div><label for="im">Front photo (optional)</label><input type="file" id="im" accept="image/*"></div><div><label for="imb">Back photo (optional)</label><input type="file" id="imb" accept="image/*"></div></div><p class="note">With photos, the shop turns between your front and back photos. Without, it shows the drawn preview.</p><button class="btn primary" id="add" style="margin-top:14px">Add product</button></div>
-    <h3 style="margin:26px 0 10px">Products (${items.length})</h3>${items.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b> <span class="price">${esc(x.price)}</span>${x.sample ? ' <span class="note">(concept)</span>' : ''}<div class="note">${esc(LINES[x.line] || '')} · ${esc(x.for || '')} · ${esc(x.cat || '')}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
+      <div class="row"><div><label for="im">Front photo (optional)</label><input type="file" id="im" accept="image/*"></div><div><label for="imb">Back photo (optional)</label><input type="file" id="imb" accept="image/*"></div></div><p class="note">With photos, the shop turns between your front and back photos. Without photos, a drawn illustration is shown.</p><button class="btn primary" id="add" style="margin-top:14px">Add product</button></div>
+    <h3 style="margin:26px 0 10px">Products (${items.length})</h3>${items.map(x => `<div class="evrow" style="grid-template-columns:1fr auto"><div><b>${esc(x.name)}</b> <span class="price">${esc(x.price)}</span><div class="note">${esc(LINES[x.line] || '')} · ${esc(x.for || '')} · ${esc(x.cat || '')}</div></div><button class="btn sm danger" data-del="${esc(x.id)}">Delete</button></div>`).join('')}`;
   $('#seedcat').onclick = async () => { const have = new Set(items.map(i => i.id)); let n = 0; for (const [id, d] of Object.entries(CATALOG)) if (!have.has(id)) { await store.set('merch', id, d, false); n++; } toast(n ? `Loaded ${n} pieces` : 'Already loaded'); Merch(p); };
   $('#add').onclick = async () => {
     if (!$('#n').value) return toast('Name needed');

@@ -39,7 +39,7 @@ $('#prev').onclick = () => { cur.setMonth(cur.getMonth() - 1); render(); };
 $('#next').onclick = () => { cur.setMonth(cur.getMonth() + 1); render(); };
 render();
 const today = new Date().toISOString().slice(0, 10), up = evs.filter(e => e.date >= today);
-$('#list').innerHTML = up.length ? up.map(e => `<div class="evrow"><div class="dt">${esc(fmtDate(e.date))}</div><div><b>${esc(e.title)}</b>${e.sample ? ' <span class="note">(sample)</span>' : ''}<div class="note">${esc(e.venue)} · ${esc(e.city)}${e.time ? ' · ' + esc(e.time) : ''}</div></div>${e.link ? `<a class="btn sm" href="${esc(e.link)}" target="_blank" rel="noopener">Info / Tickets</a>` : ''}</div>`).join('') : '<p class="note">No upcoming events yet. Join the <a href="fans.html" style="color:var(--teal)">Maniacs</a> to hear first.</p>';
+$('#list').innerHTML = up.length ? up.map(e => `<div class="evrow"><div class="dt">${esc(fmtDate(e.date))}</div><div><b>${esc(e.title)}</b><div class="note">${esc(e.venue)} · ${esc(e.city)}${e.time ? ' · ' + esc(e.time) : ''}</div></div>${e.link ? `<a class="btn sm" href="${esc(e.link)}" target="_blank" rel="noopener">Info / Tickets</a>` : ''}</div>`).join('') : '<p class="note">No upcoming events yet. Join the <a href="fans.html" style="color:var(--teal)">Maniacs</a> to hear first.</p>';
 </script>
 </body>
 </html>

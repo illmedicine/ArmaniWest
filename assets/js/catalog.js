@@ -1,5 +1,4 @@
 // Merch catalog built from the Armani West lookbook photos in assets/img/merch/.
-// Concept pieces with placeholder prices; final materials and prices are confirmed at launch.
 // `front` / `back` are file names in assets/img/merch. Pieces with one photo only show that view.
 export const LINES = { patent: 'Patent Leather', leather: 'Leather', plaid: 'Plaid' };
 const A = 'Accessories', O = 'Outerwear', T = 'Tops', B = 'Bottoms', H = 'Headwear', S = 'Shoes';
@@ -34,5 +33,5 @@ const rows = [
 const P = 'assets/img/merch/';
 export const CATALOG = Object.fromEntries(rows.map(([line, slug, name, who, cat, price, blurb, front, back], i) => [
   `${line}-${slug}`,
-  { name, line, for: who, cat, price: '$' + price, blurb, image: front ? P + front + '.jpg' : '', imageBack: back ? P + back + '.jpg' : '', view: front && back ? 'both' : back ? 'back' : 'front', sample: true, order: i, link: '' },
+  { name, line, for: who, cat, price: '$' + price, blurb, image: front ? P + front + '.jpg' : '', imageBack: back ? P + back + '.jpg' : '', view: front && back ? 'both' : back ? 'back' : 'front', order: i, link: '' },
 ]));

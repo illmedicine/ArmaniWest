@@ -22,7 +22,7 @@
 
   <h2 class="sec-t" style="font-size:30px">Prestige <i>&amp; rewards</i></h2>
   <div class="tiers" id="tiers" style="margin-bottom:12px"></div>
-  <p class="note" style="margin-bottom:40px">Earn points: join (+50), visit daily (+5), put yourself on the map (+20), read a blog post (+2). Rewards shown are the proposed program.</p>
+  <p class="note" style="margin-bottom:40px">Earn points: join (+50), visit daily (+5), put yourself on the map (+20), read a blog post (+2).</p>
 
   <h2 class="sec-t" style="font-size:30px">Fan <i>map</i></h2>
   <div id="map"></div>
@@ -30,7 +30,7 @@
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="module">
-import { boot, store, auth, loadMember, award, getGeo, consent, tierFor, nextTier, TIERS, esc, toast, $ } from './assets/js/core.js';
+import { boot, store, auth, demo, loadMember, award, getGeo, consent, tierFor, nextTier, TIERS, esc, toast, $ } from './assets/js/core.js';
 await boot('fans');
 
 const map = L.map('map', { scrollWheelZoom: false }).setView([30, -40], 2);
@@ -44,7 +44,7 @@ $('#tiers').innerHTML = TIERS.map(t => `<div class="card"><div class="ic">${t.ic
 
 async function drawMe() {
   const box = $('#me');
-  if (!auth.user) { box.innerHTML = `<h2 class="disp" style="font-size:28px">Become a Maniac</h2><p class="note">Sign in with Google to earn prestige points, join the leaderboard and unlock Armani's members-only text line.</p><button class="btn primary" id="join">Continue with Google</button>`; $('#join').onclick = async () => { await auth.signIn(); }; return; }
+  if (!auth.user) { box.innerHTML = `<h2 class="disp" style="font-size:28px">Become a Maniac</h2><p class="note">Sign in with Google to earn prestige points, join the leaderboard and unlock Armani's members-only text line.</p>${demo ? '<p class="note"><b>Membership opens soon.</b></p>' : '<button class="btn primary" id="join">Continue with Google</button>'}`; if (!demo) $('#join').onclick = async () => { await auth.signIn(); }; return; }
   const m = await loadMember(), t = tierFor(m.points), n = nextTier(m.points);
   const contact = await store.get('private', 'contact').catch(() => null);
   const pct = n ? Math.round((m.points - t.min) / (n.min - t.min) * 100) : 100;
