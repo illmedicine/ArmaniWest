@@ -54,3 +54,8 @@ export const TIERS = [
   { min: 1000, name: 'MVP', icon: '👑', reward: 'Merch discount code' },
   { min: 2500, name: 'Hall of Fame', icon: '🏆', reward: 'Shout-out on stream + signed merch' },
 ];
+
+// Founding fans shown on the board and map in every mode.
+export const FOUNDERS = [
+  { handle: 'AMW-ILLYMEDS', city: 'South Carolina', lat: 33.9, lng: -80.95, points: 500 },
+];

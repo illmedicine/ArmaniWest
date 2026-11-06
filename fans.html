@@ -25,19 +25,28 @@
   <p class="note" style="margin-bottom:40px">Earn points: join (+50), visit daily (+5), put yourself on the map (+20), read a blog post (+2).</p>
 
   <h2 class="sec-t" style="font-size:30px">Fan <i>map</i></h2>
-  <div id="map"></div>
-  <p class="note" style="margin-top:10px">Pins are city-level only and appear only for members who opt in.</p>
+  <div class="snapmap">
+    <div id="map" tabindex="0" aria-label="Fan map"></div>
+    <div class="sm-top"><input class="sm-q" type="search" placeholder="Find a Maniac" aria-label="Find a fan"><span class="sm-count"></span><button class="sm-home" aria-label="Reset view" title="Reset view">&#8962;</button></div>
+    <div class="sm-sheet" aria-live="polite"></div>
+    <div class="sm-tray"></div>
+  </div>
+  <p class="note" style="margin-top:10px">Pins are city or state level only and appear only for members who opt in.</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="module">
+import { mountFanMap } from './assets/js/fanmap.js';
+import { FOUNDERS } from './assets/js/seed.js';
 import { boot, store, auth, demo, loadMember, award, getGeo, consent, tierFor, nextTier, TIERS, esc, toast, $ } from './assets/js/core.js';
 await boot('fans');
 
-const map = L.map('map', { scrollWheelZoom: false }).setView([30, -40], 2);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '&copy; OpenStreetMap' }).addTo(map);
-async function drawPins() { (await store.list('pins')).forEach(p => L.circleMarker([p.lat, p.lng], { radius: 9, color: '#ff4fa3', fillColor: '#2de2c0', fillOpacity: .9, weight: 2 }).bindPopup(`<b>${esc(p.handle)}</b><br>${esc(p.city || '')}`).addTo(map)); }
+async function drawPins() {
+  const live = await store.list('pins'), pts = {}; (await store.list('board')).forEach(x => pts[x.handle] = x.points);
+  const pins = [...FOUNDERS.map(f => ({ id: 'f-' + f.handle, handle: f.handle, city: f.city, lat: f.lat, lng: f.lng, points: f.points })), ...live.filter(p => !FOUNDERS.some(f => f.handle === p.handle)).map(p => ({ ...p, points: pts[p.handle] || 0 }))];
+  mountFanMap({ el: $('#map'), pins, tierFor });
+}
 async function drawBoard() {
-  const b = await store.list('board', { orderBy: 'points', limit: 25 });
+  const b = [...FOUNDERS, ...(await store.list('board', { orderBy: 'points', limit: 25 })).filter(x => !FOUNDERS.some(f => f.handle === x.handle))].sort((x, y) => y.points - x.points).slice(0, 25);
   $('#board').innerHTML = b.map(x => `<li><span><b>${esc(x.handle)}</b></span><span class="tier">${tierFor(x.points).icon} ${tierFor(x.points).name}</span><span class="pts">${x.points} pts</span></li>`).join('');
 }
 $('#tiers').innerHTML = TIERS.map(t => `<div class="card"><div class="ic">${t.icon}</div><h3>${t.name}</h3><p class="meta">${t.min}+ pts</p><p class="note">${esc(t.reward)}</p></div>`).join('');
