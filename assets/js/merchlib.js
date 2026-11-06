@@ -2,9 +2,9 @@
 import { esc, $, $$ } from './core.js';
 
 export const LN = {
-  patent: { name: 'Patent Leather', logo: 'assets/img/logo-w.png', bg: '#0b0b10', tag: 'Mirror-gloss. Kawaii goth. Hot pink and black.', slides: 5, acc: '#ff7ac8', url: 'merch-patent.html' },
-  leather: { name: 'The Leather Line', logo: 'assets/img/logo-crest.png', bg: '#0b0b10', tag: 'Studded, distressed, cyber-dystopian.', slides: 5, acc: '#e0446f', url: 'merch-leather.html' },
   plaid: { name: 'The Plaid Line', logo: 'assets/img/logo-plaid-crest.png', bg: 'none', bare: true, tag: 'Goth schoolgirl. College-rave tartan.', slides: 3, acc: '#a98bff', url: 'merch-plaid.html' },
+  patent: { name: 'Patent Leather', logo: 'assets/img/logo-w.png', bg: 'none', bare: true, tag: 'Mirror-gloss. Kawaii goth. Hot pink and black.', slides: 5, acc: '#ff7ac8', url: 'merch-patent.html' },
+  leather: { name: 'The Leather Line', logo: 'assets/img/logo-crest.png', bg: 'none', bare: true, tag: 'Studded, distressed, cyber-dystopian.', slides: 5, acc: '#e0446f', url: 'merch-leather.html' },
 };
 
 export function lineNav(active) {

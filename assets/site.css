@@ -222,3 +222,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .mbadge.bare img{border-radius:0}
 .mhero.compact .mbadge.bare{width:clamp(84px,9vw,118px);height:clamp(84px,9vw,118px)}
 .linenav img.bare{background:none!important;border-radius:0;padding:0;width:28px;height:28px}
+
+.mbadge.bare{width:clamp(130px,15vw,210px);height:clamp(130px,15vw,210px)}
+.mhero.compact .mbadge.bare{width:clamp(100px,11vw,150px);height:clamp(100px,11vw,150px)}
+.linenav img.bare{width:32px;height:32px}
