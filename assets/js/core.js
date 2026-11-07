@@ -265,12 +265,11 @@ export async function boot(page) {
   consentBanner(); startTracking();
   auth.onChange(async u => { if (u) { const m = await loadMember(); await award(dailyKey(), 5); } });
 
-  // live pill + live banner
+  // "LIVE NOW" pill + live banner while she's streaming
   try {
     const live = await store.get('site', 'live');
-    const n = await liveCount(); const pill = $('#livepill');
+    const pill = $('#livepill');
     if (live?.on) { pill.hidden = false; pill.className = 'pill live'; pill.textContent = '● LIVE NOW'; pill.onclick = () => location.href = live.url || ('https://twitch.tv/' + cfg.twitchChannel); }
-    else if (n > 0) { pill.hidden = false; pill.textContent = `${n} here now`; }
     document.dispatchEvent(new CustomEvent('aw:live', { detail: live }));
   } catch { }
 }
