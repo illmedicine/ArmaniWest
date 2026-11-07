@@ -2,7 +2,7 @@
 // visitor location, member points, and the page chrome (nav, footer, avatar dock).
 import cfg from './config.js';
 import { seed, TIERS } from './seed.js';
-import { mountWalker } from './walker.js';
+import { WALKERS, setWalker, savedWalker, saveWalker } from './walker.js';
 
 export const demo = !(cfg.firebase && cfg.firebase.apiKey);
 export { cfg, TIERS };
@@ -206,6 +206,36 @@ export const fmtDate = d => new Date(d + (String(d).length === 10 ? 'T12:00:00' 
 
 const NAV = [['index.html', 'Home'], ['about.html', 'About'], ['music.html', 'Music'], ['events.html', 'Events'], ['merch.html', 'Merch'], ['cameo.html', 'Cameo'], ['fans.html', 'Fanboys'], ['blog.html', 'Blog'], ['media.html', 'Media']];
 
+// Header switch for the on-page Armani, like a light/dark theme toggle. The choice is remembered on this device.
+function characterPicker(host) {
+  const opts = [...Object.entries(WALKERS).map(([k, c]) => ({ k, name: c.name, sub: c.from, face: c.face })), { k: 'off', name: 'Off', sub: 'Hide her' }];
+  const wrap = document.createElement('div'); wrap.className = 'wkp';
+  wrap.innerHTML = `<button class="wkp-btn" aria-haspopup="menu" aria-expanded="false"></button>
+    <div class="wkp-menu" role="menu" hidden><p class="wkp-t">Armani on the page</p>${opts.map(o => `<button role="menuitemradio" data-k="${o.k}">${o.face ? `<img src="${o.face}" alt="">` : '<span class="wkp-off">&#8856;</span>'}<span><b>${esc(o.name)}</b><small>${esc(o.sub)}</small></span></button>`).join('')}</div>`;
+  host.prepend(wrap);
+  const btn = wrap.querySelector('.wkp-btn'), menu = wrap.querySelector('.wkp-menu');
+  const apply = k => {
+    const o = opts.find(x => x.k === k) || opts[0];
+    btn.innerHTML = o.face ? `<img src="${o.face}" alt="">` : '<span class="wkp-off">&#8856;</span>';
+    btn.setAttribute('aria-label', `Armani on the page: ${o.name}. Change`);
+    btn.title = `Armani on the page: ${o.name}`;
+    menu.querySelectorAll('[data-k]').forEach(b => b.setAttribute('aria-checked', b.dataset.k === k));
+    setWalker(k);
+  };
+  const open = v => { menu.hidden = !v; btn.setAttribute('aria-expanded', v); if (v) menu.querySelector('[aria-checked="true"]')?.focus(); };
+  btn.onclick = () => open(menu.hidden);
+  menu.onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; saveWalker(b.dataset.k); apply(b.dataset.k); open(false); btn.focus(); };
+  addEventListener('click', e => { if (!wrap.contains(e.target)) open(false); });
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { open(false); btn.focus(); }
+    if (!menu.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault(); const items = [...menu.querySelectorAll('[data-k]')], i = items.indexOf(document.activeElement);
+      items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
+    }
+  });
+  apply(savedWalker());
+}
+
 export async function boot(page) {
   document.body.dataset.page = page;
   let here = location.pathname.split('/').pop() || 'index.html'; if (here.startsWith('merch')) here = 'merch.html';
@@ -224,8 +254,8 @@ export async function boot(page) {
     <a class="powered" href="https://www.illyrobotic-ai.com/" target="_blank" rel="noopener"><img src="assets/img/brand/illy-robotic.png" alt="" width="22" height="22" loading="lazy"><span>Powered by <b>ILLY ROBOTIC INSTRUMENTS</b></span></a>`;
   document.body.appendChild(foot);
 
-  // Armani struts along the bottom of the page and strikes poses (reacts to taps + scroll)
-  if (!document.body.hasAttribute('data-noavatar')) mountWalker();
+  // Armani in the corner of the page (dances on scroll, poses on tap). Visitors pick which Armani, or none.
+  if (!document.body.hasAttribute('data-noavatar')) characterPicker(head.querySelector('.nav-r'));
 
   const btn = $('#authbtn');
   if (demo) btn.hidden = true;
