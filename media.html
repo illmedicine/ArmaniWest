@@ -13,26 +13,103 @@
 <main class="wrap">
   <p class="eyebrow">Watch &amp; look</p>
   <h1 class="sec-t">The <i>media</i></h1>
-  <section id="vsec" hidden><h2 class="sub-t">Videos</h2><div class="vgrid" id="yts"></div></section>
-  <section id="csec" hidden><h2 class="sub-t">Clips</h2><div class="cgrid" id="clips"></div></section>
-  <section id="psec" hidden><h2 class="sub-t">Photos</h2><div class="gallery" id="g"></div></section>
-  <section id="asec"><h2 class="sub-t">Album art</h2><div class="disco" id="art"></div></section>
+
+  <section id="videos" hidden>
+    <div class="mhead"><h2 class="sub-t">Videos<small id="vn"></small></h2><button class="btn sm" data-all="vall" aria-expanded="false"></button></div>
+    <div id="vhero"></div>
+    <div class="mall" id="vall" hidden>
+      <div class="vgrid" id="yts"></div>
+      <h3 class="sub-t" id="clipt" hidden>Clips</h3><div class="cgrid" id="clips"></div>
+    </div>
+  </section>
+
+  <section id="photos" hidden>
+    <div class="mhead"><h2 class="sub-t">Photos<small id="pn"></small></h2><button class="btn sm" data-all="pall" aria-expanded="false"></button></div>
+    <div id="phero"></div>
+    <div class="mall" id="pall" hidden><div class="gallery" id="g"></div></div>
+  </section>
+
+  <section id="albums">
+    <div class="mhead"><h2 class="sub-t">Album art<small id="an"></small></h2><button class="btn sm" data-all="aall" aria-expanded="false"></button></div>
+    <div id="ahero"></div>
+    <div class="mall" id="aall" hidden><div class="disco" id="art"></div></div>
+  </section>
 </main>
 <script type="module">
 import { boot, store, esc, $ } from './assets/js/core.js';
-import { DISCO } from './assets/js/disco.js';
+import { DISCO, listen } from './assets/js/disco.js';
+import { heroSlider, lightbox } from './assets/js/slider.js';
 await boot('media');
+
 const all = (await store.list('media', { orderBy: 'ts' })).sort((a, b) => (b.ts || 0) - (a.ts || 0));
 const yts = all.filter(x => x.type === 'youtube' && x.yt), clips = all.filter(x => x.type === 'clip' && x.mp4), pics = all.filter(x => x.src);
-$('#yts').innerHTML = yts.map(v => `<figure class="vid"><button class="vplay" data-yt="${esc(v.yt)}" aria-label="Play ${esc(v.caption)}"><img src="https://img.youtube.com/vi/${esc(v.yt)}/hqdefault.jpg" alt="" loading="lazy"><span class="pbtn"></span></button><figcaption>${esc(v.caption)}</figcaption></figure>`).join('');
+const th = src => src.startsWith('assets/img/') ? 'assets/img/th/' + src.slice(11).replace(/\//g, '-').replace(/\.\w+$/, '.jpg') : src;
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : '';
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const nice = d => { const [y, m, dd] = d.split('-').map(Number); return `${months[m - 1]} ${dd}, ${y}`; };
+// "basketball (Official Music Video)" -> ["basketball", "Official Music Video"]
+const split = c => { const m = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(c || ''); return m ? [m[1], m[2]] : [c || 'Video', 'Video']; };
+
+// Show all buttons
+const labels = {};
+function setAll(btn, open) {
+  btn.setAttribute('aria-expanded', open);
+  btn.innerHTML = open ? 'Show less &uarr;' : `${labels[btn.dataset.all]} &rarr;`;
+  $('#' + btn.dataset.all).hidden = !open;
+}
+document.querySelectorAll('[data-all]').forEach(b => b.onclick = () => {
+  const open = b.getAttribute('aria-expanded') !== 'true';
+  setAll(b, open);
+  if (!open) b.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// Videos
+const vcount = yts.length + clips.length;
+$('#videos').hidden = !vcount;
+$('#vn').textContent = plural(vcount, 'video');
+labels.vall = `Show all ${vcount} videos`;
+heroSlider($('#vhero'), yts.map(v => {
+  const [t, k] = split(v.caption);
+  return {
+    img: `https://i.ytimg.com/vi/${encodeURIComponent(v.yt)}/maxresdefault.jpg`,
+    thumb: `https://i.ytimg.com/vi/${encodeURIComponent(v.yt)}/mqdefault.jpg`,
+    fit: 'cover', title: t, kick: k,
+    play: `<button class="hs-play" data-play data-yt="${esc(v.yt)}" data-title="${esc(v.caption)}" aria-label="Play ${esc(v.caption)}"></button>`,
+    actions: `<div class="hs-acts"><button class="btn primary sm" data-play data-yt="${esc(v.yt)}" data-title="${esc(v.caption)}">&#9654; Play video</button><a class="btn sm" href="https://www.youtube.com/watch?v=${esc(v.yt)}" target="_blank" rel="noopener">Watch on YouTube</a></div>`,
+  };
+}), { label: 'Videos', kind: 'video', auto: 7000 });
+$('#yts').innerHTML = yts.map(v => `<figure class="vid"><button class="vplay" data-yt="${esc(v.yt)}" aria-label="Play ${esc(v.caption)}"><img src="https://i.ytimg.com/vi/${esc(v.yt)}/hqdefault.jpg" alt="" loading="lazy"><span class="pbtn"></span></button><figcaption>${esc(v.caption)}</figcaption></figure>`).join('');
 $('#clips').innerHTML = clips.map(v => `<figure class="clip"><video src="${esc(v.mp4)}" poster="${esc(v.poster || '')}" preload="none" playsinline controls></video><figcaption>${esc(v.caption)}</figcaption></figure>`).join('');
-$('#g').innerHTML = pics.map(x => `<figure><img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy"><figcaption>${esc(x.caption)}</figcaption></figure>`).join('');
-$('#vsec').hidden = !yts.length; $('#csec').hidden = !clips.length; $('#psec').hidden = !pics.length;
+$('#clipt').hidden = !clips.length;
 $('#yts').onclick = e => { const b = e.target.closest('.vplay'); if (!b) return; b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0" title="Video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`; };
-document.addEventListener('play', e => { document.querySelectorAll('.clip video').forEach(v => { if (v !== e.target) v.pause(); }); }, true);
-$('#art').innerHTML = DISCO.map(r => `<figure class="rel"><img src="${r.img}" alt="${esc(r.t)} cover art" loading="lazy"><b>${esc(r.t)}</b><span>${r.date.slice(0, 4)}</span></figure>`).join('');
-$('#art').onclick = e => { const i = e.target.closest('img'); if (!i) return; const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = `<img src="${i.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); };
-$('#g').onclick = e => { const i = e.target.closest('img'); if (!i) return; const lb = document.createElement('div'); lb.className = 'lightbox'; lb.innerHTML = `<img src="${i.src}" alt="">`; lb.onclick = () => lb.remove(); document.body.appendChild(lb); };
+document.addEventListener('play', e => { document.querySelectorAll('video').forEach(v => { if (v !== e.target) v.pause(); }); }, true);
+
+// Photos
+$('#photos').hidden = !pics.length;
+$('#pn').textContent = plural(pics.length, 'photo');
+labels.pall = `Show all ${pics.length} photos`;
+const plist = pics.map(x => ({ src: x.src, title: x.caption || 'Armani West' }));
+heroSlider($('#phero'), pics.map(x => ({
+  img: x.src, thumb: th(x.src), zoom: true, title: x.caption || 'Armani West', kick: x.from || 'Photo',
+  actions: `<div class="hs-acts"><button class="btn sm" data-zoom>&#10530; Full size</button></div>`,
+})), { label: 'Photos', kind: 'photos' });
+$('#g').innerHTML = pics.map((x, i) => `<figure><img src="${esc(x.src)}" alt="${esc(x.caption)}" loading="lazy" data-i="${i}"><figcaption>${esc(x.caption)}</figcaption></figure>`).join('');
+$('#g').onclick = e => { const i = e.target.closest('img'); if (i) lightbox(plist, +i.dataset.i); };
+
+// Album art
+$('#an').textContent = plural(DISCO.length, 'release');
+labels.aall = `Show all ${DISCO.length} covers`;
+const alist = DISCO.map(r => ({ src: r.img, title: r.t }));
+heroSlider($('#ahero'), DISCO.map(r => ({
+  img: r.img, thumb: th(r.img), zoom: true, title: r.t,
+  kick: `${cap(r.type)} · ${r.date.slice(0, 4)}`, sub: `Released ${nice(r.date)}`,
+  actions: `<div class="hs-acts"><a class="btn primary sm" href="${esc(listen(r))}" target="_blank" rel="noopener">Listen on Spotify</a><button class="btn sm" data-zoom>&#10530; Full size</button></div>`,
+})), { label: 'Album art', kind: 'album' });
+$('#art').innerHTML = DISCO.map((r, i) => `<figure class="rel"><img src="${r.img}" alt="${esc(r.t)} cover art" loading="lazy" data-i="${i}"><b>${esc(r.t)}</b><span>${esc(cap(r.type))} &middot; ${r.date.slice(0, 4)}</span></figure>`).join('');
+$('#art').onclick = e => { const i = e.target.closest('img'); if (i) lightbox(alist, +i.dataset.i); };
+
+document.querySelectorAll('[data-all]').forEach(b => setAll(b, location.hash === '#' + b.closest('section').id + '-all'));
 </script>
 </body>
 </html>
