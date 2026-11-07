@@ -220,7 +220,8 @@ export async function boot(page) {
   foot.innerHTML = `<div class="foot-in"><div><img class="foot-crest" src="assets/img/logo-crest.png" alt="Armani West crest" loading="lazy"><b class="brand">ARMANI<span>WEST</span></b><p>Official home. Los Angeles.</p></div>
     <div class="foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="privacy.html">Privacy</a><a href="admin.html">Portal</a></div>
     <div class="foot-soc"><a href="https://instagram.com/armaniwesttt" target="_blank" rel="noopener">IG</a><a href="https://snapchat.com/add/armaniwesttt" target="_blank" rel="noopener">SNAP</a><a href="https://tiktok.com/@armaniwestt" target="_blank" rel="noopener">TT</a><a href="https://youtube.com/@armaniwestt" target="_blank" rel="noopener">YT</a><a href="https://twitch.tv/${cfg.twitchChannel}" target="_blank" rel="noopener">TWITCH</a></div></div>
-    <p class="fine">&copy; ${new Date().getFullYear()} Armani West. </p>`;
+    <p class="fine">&copy; ${new Date().getFullYear()} Armani West.</p>
+    <a class="powered" href="https://www.illyrobotic-ai.com/" target="_blank" rel="noopener"><img src="assets/img/brand/illy-robotic.png" alt="" width="22" height="22" loading="lazy"><span>Powered by <b>ILLY ROBOTIC INSTRUMENTS</b></span></a>`;
   document.body.appendChild(foot);
 
   // Avatar dock (fixed to the side, reacts to scroll + clicks)

@@ -115,6 +115,10 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .foot{border-top:1px solid var(--line);margin-top:40px;padding:36px 20px 20px}
 .foot-in{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr auto;gap:30px}.foot-links{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--mute)}.foot-links a:hover,.foot-soc a:hover{color:var(--teal)}.foot-soc{display:flex;gap:14px;font:700 12px "Unbounded"}
 .fine{text-align:center;color:var(--mute);font-size:13px;margin-top:24px}
+.powered{display:flex;width:max-content;max-width:100%;margin:10px auto 0;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--mute);font-size:12px;letter-spacing:.02em;transition:color .2s,border-color .2s}
+.powered img{width:22px;height:22px;border-radius:5px;flex:none}.powered b{font-weight:700;letter-spacing:.06em}
+.powered:hover,.powered:focus-visible{color:#ffa855;border-color:#ffa855}
+@media(max-width:900px){body:has(.av-dock) .foot{padding-bottom:150px}}
 .consent{position:fixed;left:16px;bottom:16px;z-index:70;max-width:460px;background:#15151d;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.6)}.consent p{margin:0 0 12px;font-size:14px}.consent a{color:var(--teal);text-decoration:underline}
 .toast{position:fixed;left:50%;top:72px;transform:translate(-50%,-20px);background:var(--teal);color:#041;font-weight:700;padding:10px 18px;border-radius:99px;opacity:0;transition:.3s;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
 .livebanner{background:var(--pink);text-align:center;padding:10px;font-weight:700}
