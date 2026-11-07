@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,500;0,700;0,900;1,600;1,700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 </head>
-<body data-noavatar>
+<body>
 <main>
   <section class="paper">
     <div class="wrap" style="padding-bottom:30px">
@@ -24,7 +24,6 @@
         </div>
         <div style="position:relative">
           <img src="assets/img/snap/snap-a.jpg" alt="Armani West in a locker room with a basketball" style="width:100%;border-radius:4px;display:block">
-          <div class="av-hero" id="heroAv" style="position:absolute;right:-6%;bottom:-8%;--av-size:38%;"></div>
         </div>
       </div>
     </div>
@@ -43,10 +42,7 @@
 </main>
 <script type="module">
 import { boot, store, esc, md, $ } from './assets/js/core.js';
-import { mountAvatar } from './assets/js/avatar.js';
 await boot('about');
-const av = mountAvatar($('#heroAv'));
-let t = 0; setInterval(() => av.random(['hipSway', 'wave', 'bounce', 'shimmy', 'headbop'], { dir: (t++ % 2) ? 1 : -1 }), 3200);
 const DEF = {
   pull: `Teal hair. Fur ears. A basketball under one arm.`,
   intro: `Armani West is a Los Angeles rapper, actor and creator who calls herself the princess of rap. She built her following freestyling live online, then turned it into mixtapes, a global streaming hit and a fan army called the Maniacs.

@@ -1,5 +1,5 @@
 // Shared engine: data store (Firebase or demo/localStorage), Google auth, consent, presence,
-// visitor location, member points, and the page chrome (nav, footer, avatar dock).
+// visitor location, member points, and the page chrome (nav, footer, the on-page Armani).
 import cfg from './config.js';
 import { seed, TIERS } from './seed.js';
 import { WALKERS, setWalker, savedWalker, saveWalker } from './walker.js';

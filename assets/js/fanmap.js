@@ -1,5 +1,4 @@
 // Snap-Maps style fan map: cute avatar pins, name tags, bottom fan tray, tap-for-card.
-import { avatarSVG } from './avatar.js';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const hash = s => { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
@@ -43,9 +42,9 @@ export function chibi(seed, look) {
   </svg>`;
 }
 
-// Armani's own head, cropped from the full avatar artwork
+// Armani's own pin: a real photo of her face
 function armaniHead() {
-  return avatarSVG().replace('viewBox="0 0 400 680"', 'viewBox="95 12 210 270"').replace('class="aw-av"', 'class="aw-av-head" preserveAspectRatio="xMidYMin slice"');
+  return '<img class="aw-av-head" src="assets/img/armani-face.jpg" alt="">';
 }
 
 const pin = ({ seed, look, label, big, host, glow }) => `<div class="sm-pin ${big ? 'big' : ''} ${host ? 'host' : ''}" style="--g:${glow || '#ff4fa3'}"><div class="sm-ring"><div class="sm-face">${host ? armaniHead() : chibi(seed, look)}</div></div><span class="sm-tag">${esc(label)}</span></div>`;
