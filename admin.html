@@ -93,7 +93,7 @@ async function Media(p) {
 /* ---- Blog ---- */
 async function Blog(p, edit) {
   const posts = await store.list('posts', { orderBy: 'ts' }); const e = edit ? posts.find(x => x.id === edit) : null;
-  p.innerHTML = `<div class="card"><h3>${e ? 'Edit post' : 'New post'}</h3>${field('t', 'Title', e?.title)}${field('ex', 'Short summary', e?.excerpt)}<label for="b">Body</label><textarea id="b" style="min-height:260px" placeholder="Write here. ## Heading, **bold**, *italic*, [link](https://...)">${esc(e?.body || '')}</textarea>
+  p.innerHTML = `<div class="card"><h3>${e ? 'Edit post' : 'New post'}</h3>${field('t', 'Title', e?.title)}${field('ex', 'Short summary', e?.excerpt)}<label for="b">Body</label><textarea id="b" style="min-height:260px" placeholder="Write here. ## Heading, **bold**, *italic*, [link](https://...)">${esc(e?.body || '')}</textarea><p class="note">Put an embed on its own line: [[tiktok:VIDEO_ID]], [[youtube:VIDEO_ID]] or [[img:https://...|caption]]. Start a paragraph with &gt; for a pull quote.</p>
     <label for="cv">Cover photo</label><input type="file" id="cv" accept="image/*"><p class="note">${e?.cover ? 'A cover is set. Choose a file to replace it.' : ''}</p>
     <label><input type="checkbox" id="pub" style="width:auto" ${e?.published !== false ? 'checked' : ''}> Published</label>
     <div class="cta"><button class="btn primary" id="save">${e ? 'Save changes' : 'Publish post'}</button>${e ? '<button class="btn" id="cancel">Cancel</button>' : ''}</div></div>

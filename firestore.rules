@@ -41,6 +41,28 @@ service cloud.firestore {
       allow delete: if owner(uid) || isAdmin();
     }
 
+    // Blog comments and replies: anyone reads; signed-in fans post as themselves; authors or admin delete.
+    match /comments/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['post','parent','uid','name','photo','text','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && request.resource.data.post is string && request.resource.data.parent is string;
+      allow delete: if owner(resource.data.uid) || isAdmin();
+    }
+    // Likes on posts and comments: one per fan per target (doc id = target_uid).
+    match /likes/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['post','target','uid','ts'])
+        && request.resource.data.uid == request.auth.uid
+        && id == request.resource.data.target + '_' + request.auth.uid;
+      allow delete: if owner(resource.data.uid) || isAdmin();
+    }
+
     // Analytics: anyone (who accepted the consent banner) may write; only admin reads.
     match /visitors/{id} {
       allow create: if request.resource.data.keys().hasOnly(['ts','path','ref','device','member','city','region','country','lat','lng']);

@@ -28,7 +28,7 @@ async function fbInit() {
 }
 
 /* ---------- Store ---------- */
-const lk = col => 'aw:' + col + ':v10';
+const lk = col => 'aw:' + col + ':v11';
 function localCol(col) {
   let c = LS.get(lk(col), null);
   if (c === null) {
@@ -162,12 +162,35 @@ export function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
   requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
 }
+// Embeds, one per line: [[tiktok:ID]], [[youtube:ID]], [[img:assets/path.jpg|caption]]
+const EMBED = /^\[\[(tiktok|youtube|img):([^\]|]+)(?:\|([^\]]*))?\]\]$/;
+function embed(line) {
+  const [, kind, ref, cap = ''] = EMBED.exec(line);
+  if (kind === 'tiktok' && /^\d+$/.test(ref)) return `<figure class="emb tt"><button class="emb-play" data-tt="${ref}" aria-label="Play TikTok"><img src="assets/img/blog/tt-${ref}.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="pbtn"></span></button><figcaption><a href="https://www.tiktok.com/@armaniwestt/video/${ref}" target="_blank" rel="noopener">${esc(cap || 'Watch on TikTok')}</a></figcaption></figure>`;
+  if (kind === 'youtube' && /^[\w-]{6,20}$/.test(ref)) return `<figure class="emb yt"><button class="emb-play" data-yt="${ref}" aria-label="Play video"><img src="https://i.ytimg.com/vi/${ref}/maxresdefault.jpg" alt="" loading="lazy"><span class="pbtn"></span></button>${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
+  if (kind === 'img' && /^(assets\/|https?:)[^\s"'<>]+$/.test(ref)) return `<figure class="emb im"><img src="${esc(ref)}" alt="${esc(cap)}" loading="lazy">${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
+  return '';
+}
 export function md(src) {
   const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>')
-    .replace(/!\[([^\]]*)\]\((https?:[^)\s]+|data:image\/[^)\s]+)\)/g, '<img src="$2" alt="$1">')
+    .replace(/!\[([^\]]*)\]\(((?:https?:|assets\/)[^)\s]+|data:image\/[^)\s]+)\)/g, '<img src="$2" alt="$1">')
     .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-  return String(src || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p =>
-    p.startsWith('## ') ? `<h3>${inline(p.slice(3))}</h3>` : p.startsWith('# ') ? `<h2>${inline(p.slice(2))}</h2>` : `<p>${inline(p).replace(/\n/g, '<br>')}</p>`).join('');
+  return String(src || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p => {
+    const lines = p.split('\n').map(l => l.trim());
+    if (lines.every(l => EMBED.test(l))) return `<div class="embeds n${Math.min(lines.length, 3)}">${lines.map(embed).join('')}</div>`;
+    return p.startsWith('## ') ? `<h3>${inline(p.slice(3))}</h3>` : p.startsWith('# ') ? `<h2>${inline(p.slice(2))}</h2>` : p.startsWith('> ') ? `<blockquote>${inline(p.replace(/^> ?/gm, '')).replace(/\n/g, '<br>')}</blockquote>` : `<p>${inline(p).replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+}
+// Swap an embed's cover for the real player when tapped.
+export function wireEmbeds(root) {
+  root.addEventListener('click', e => {
+    const b = e.target.closest('.emb-play'); if (!b) return;
+    const f = document.createElement('iframe');
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+    if (b.dataset.tt) { f.src = `https://www.tiktok.com/player/v1/${b.dataset.tt}?autoplay=1&description=1&music_info=1&rel=0`; f.title = 'TikTok'; }
+    else { f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0`; f.title = 'Video'; }
+    b.replaceWith(f);
+  });
 }
 export async function compressImage(file, maxDim = 1600, maxBytes = 650000) {
   const url = URL.createObjectURL(file); const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });

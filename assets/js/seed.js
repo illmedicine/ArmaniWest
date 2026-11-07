@@ -1,12 +1,13 @@
 // Initial site content.
 import { CATALOG } from './catalog.js';
+import { POSTS } from './posts.js';
 const day = 86400000, now = Date.now();
 const iso = n => new Date(now + n * day).toISOString().slice(0, 10);
 
 export const seed = {
   events: {},
   merch: CATALOG,
-  posts: {},
+  posts: POSTS,
   media: {
     y1: { type: 'youtube', yt: '9elxuls1x4w', caption: 'basketball (Official Music Video)', ts: now },
     y2: { type: 'youtube', yt: 'kmSpdNGs5Q0', caption: 'Maneater (Official Music Video)', ts: now - 1 },
@@ -105,17 +106,17 @@ export const seed = {
     g56: { src: 'assets/img/press/g-56.jpg', caption: 'THANK YAAA', from: 'TikTok', ts: now - 1056 },
     g57: { src: 'assets/img/press/g-57.jpg', caption: 'shh ;)', from: 'TikTok', ts: now - 1057 },
     g58: { src: 'assets/img/press/g-58.jpg', caption: 'no music', from: 'TikTok', ts: now - 1058 },
-    i1: { src: 'assets/img/press/ig-01.jpg', caption: 'Black & gold', from: 'Instagram', ts: now - 1101 },
-    i2: { src: 'assets/img/press/ig-02.jpg', caption: 'Monster High', from: 'Instagram', ts: now - 1102 },
-    i3: { src: 'assets/img/press/ig-03.jpg', caption: 'Mystery Inc.', from: 'Instagram', ts: now - 1103 },
-    i4: { src: 'assets/img/press/ig-04.jpg', caption: 'Downtown LA', from: 'Instagram', ts: now - 1104 },
-    i5: { src: 'assets/img/press/ig-05.jpg', caption: 'Las Vegas', from: 'Instagram', ts: now - 1105 },
-    i6: { src: 'assets/img/press/ig-06.jpg', caption: 'Blue tutu', from: 'Instagram', ts: now - 1106 },
-    i7: { src: 'assets/img/press/ig-07.jpg', caption: 'Hardcore punk', from: 'Instagram', ts: now - 1107 },
-    i8: { src: 'assets/img/press/ig-08.jpg', caption: 'Universal Studios', from: 'Instagram', ts: now - 1108 },
-    i9: { src: 'assets/img/press/ig-09.jpg', caption: 'City lights', from: 'Instagram', ts: now - 1109 },
-    i10: { src: 'assets/img/press/ig-10.jpg', caption: 'Lounge', from: 'Instagram', ts: now - 1110 },
-    i11: { src: 'assets/img/press/ig-11.jpg', caption: 'After hours', from: 'Instagram', ts: now - 1111 },
+    i1: { src: 'assets/img/press/ig-01.jpg', caption: 'five nights at hogwarts 🪄🧸', from: 'Instagram', ts: now - 1101 },
+    i2: { src: 'assets/img/press/ig-02.jpg', caption: 'monster montana 🐺🩵', from: 'Instagram', ts: now - 1102 },
+    i3: { src: 'assets/img/press/ig-03.jpg', caption: 'Velma & Daphne', from: 'Instagram · stei', ts: now - 1103 },
+    i4: { src: 'assets/img/press/ig-04.jpg', caption: 'trophy 🏆', from: 'Instagram', ts: now - 1104 },
+    i5: { src: 'assets/img/press/ig-05.jpg', caption: 'viva las vegas', from: 'Instagram', ts: now - 1105 },
+    i6: { src: 'assets/img/press/ig-06.jpg', caption: 'princess montana', from: 'Instagram', ts: now - 1106 },
+    i7: { src: 'assets/img/press/ig-07.jpg', caption: 'punk not ponk', from: 'Instagram', ts: now - 1107 },
+    i8: { src: 'assets/img/press/ig-08.jpg', caption: 'best day ever ♡', from: 'Instagram', ts: now - 1108 },
+    i9: { src: 'assets/img/press/ig-09.jpg', caption: 'literally my life is >', from: 'Instagram', ts: now - 1109 },
+    i10: { src: 'assets/img/press/ig-10.jpg', caption: 'say im bad', from: 'Instagram', ts: now - 1110 },
+    i11: { src: 'assets/img/press/ig-11.jpg', caption: 'ballin like i got six’', from: 'Instagram · photo by @fromheavensview', ts: now - 1111 },
     p3: { src: 'assets/img/avatar.png', caption: 'On the turf', ts: now - 3 * day },
     p4: { src: 'assets/img/block-1.webp', caption: 'Portrait', ts: now - 2 * day },
     p5: { src: 'assets/img/ig-17877336342473842.jpg', caption: 'Pretty in pink', from: 'Instagram', ts: now - 1 * day },

@@ -12,21 +12,48 @@
 <body>
 <main class="wrap" id="root"></main>
 <script type="module">
-import { boot, store, auth, award, esc, md, $ } from './assets/js/core.js';
+import { boot, store, auth, award, esc, md, wireEmbeds, $ } from './assets/js/core.js';
+import { mountComments, counts } from './assets/js/comments.js';
+import { POSTS } from './assets/js/posts.js';
 await boot('blog');
 const slug = new URLSearchParams(location.search).get('p');
-const posts = (await store.list('posts', { orderBy: 'ts' })).filter(p => p.published);
+// Built-in posts plus anything published from the admin portal (same id: the admin copy wins).
+const byId = Object.fromEntries(Object.entries(POSTS).map(([id, p]) => [id, { id, ...p }]));
+(await store.list('posts', { orderBy: 'ts' }).catch(() => [])).forEach(p => { byId[p.id] = p; });
+const posts = Object.values(byId).filter(p => p.published).sort((a, b) => (b.ts || 0) - (a.ts || 0));
 const root = $('#root');
+const day = (ts, style = 'medium') => new Date(ts).toLocaleDateString(undefined, { dateStyle: style });
+const tags = p => (p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('');
+const href = p => `blog.html?p=${encodeURIComponent(p.slug || p.id)}`;
+
 if (slug) {
-  const p = posts.find(x => x.slug === slug || x.id === slug);
+  const i = posts.findIndex(x => x.slug === slug || x.id === slug), p = posts[i];
   if (!p) root.innerHTML = '<h1 class="sec-t">Post <i>not found</i></h1><a class="btn" href="blog.html">Back to blog</a>';
   else {
     document.title = p.title + ' | Armani West';
-    root.innerHTML = `<article class="prose"><a class="note" href="blog.html">&larr; All posts</a><p class="eyebrow" style="margin-top:20px">${new Date(p.ts).toLocaleDateString(undefined, { dateStyle: 'long' })}</p><h1 class="sec-t">${esc(p.title)}</h1>${p.cover ? `<img class="post-cover" src="${esc(p.cover)}" alt="">` : ''}${md(p.body)}</article>`;
+    const newer = posts[i - 1], older = posts[i + 1];
+    root.innerHTML = `<article class="prose post">
+      <a class="note" href="blog.html">&larr; All posts</a>
+      <header class="post-head">
+        ${p.cover ? `<img class="post-hero" src="${esc(p.cover)}" alt="">` : ''}
+        <div><p class="eyebrow">${day(p.ts, 'long')}</p><h1 class="sec-t">${esc(p.title)}</h1><div class="tags">${tags(p)}</div>${p.excerpt ? `<p class="post-dek">${esc(p.excerpt)}</p>` : ''}</div>
+      </header>
+      ${md(p.body)}
+      <section id="talk" class="talk"></section>
+      <nav class="post-nav">${newer ? `<a href="${href(newer)}"><small>&larr; Newer</small>${esc(newer.title)}</a>` : '<span></span>'}${older ? `<a class="r" href="${href(older)}"><small>Older &rarr;</small>${esc(older.title)}</a>` : ''}</nav>
+    </article>`;
+    wireEmbeds(root);
+    mountComments($('#talk'), p);
     auth.onChange(u => { if (u) award('read-' + p.id, 2); });
   }
 } else {
-  root.innerHTML = `<p class="eyebrow">Notes from Armani</p><h1 class="sec-t">The <i>blog</i></h1><div class="grid g3">${posts.map(p => `<a class="card" href="blog.html?p=${encodeURIComponent(p.slug || p.id)}">${p.cover ? `<img class="post-cover" src="${esc(p.cover)}" alt="" style="margin-bottom:12px">` : ''}<p class="eyebrow">${new Date(p.ts).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p><h3>${esc(p.title)}</h3><p class="meta">${esc(p.excerpt || '')}</p></a>`).join('') || '<p class="note">First post coming soon.</p>'}</div>`;
+  const n = await counts();
+  const stats = p => { const c = n(p.id); return `<span class="bstats"><span>&#9829; ${c.likes}</span><span>&#128172; ${c.comments}</span></span>`; };
+  const [top, ...rest] = posts;
+  const card = p => `<a class="bcard" href="${href(p)}">${p.cover ? `<span class="bimg"><img src="${esc(p.cover)}" alt="" loading="lazy"></span>` : ''}<span class="bbody"><span class="eyebrow">${day(p.ts)}</span><b>${esc(p.title)}</b><span class="meta">${esc(p.excerpt || '')}</span><span class="tags">${tags(p)}</span>${stats(p)}</span></a>`;
+  root.innerHTML = `<p class="eyebrow">Notes from Armani</p><h1 class="sec-t">The <i>blog</i></h1>
+    ${top ? `<a class="bfeat" href="${href(top)}">${top.cover ? `<img src="${esc(top.cover)}" alt="">` : ''}<span class="bbody"><span class="eyebrow">Latest &middot; ${day(top.ts, 'long')}</span><b>${esc(top.title)}</b><span class="meta">${esc(top.excerpt || '')}</span><span class="tags">${tags(top)}</span>${stats(top)}<span class="btn sm primary">Read post &rarr;</span></span></a>` : '<p class="note">First post coming soon.</p>'}
+    <div class="bgrid">${rest.map(card).join('')}</div>`;
 }
 </script>
 </body>
