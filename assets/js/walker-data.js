@@ -1,0 +1,2 @@
+// Generated from her CLAWMONTANA TikTok (Oct 30, 2026): cut-out frames at 10 fps, one strip per move.
+export const WALK = {"cw": 190, "ch": 376, "fps": 10, "clips": {"strut": {"n": 10, "src": "assets/img/walker/strut.webp"}, "hips": {"n": 17, "src": "assets/img/walker/hips.webp"}, "arms": {"n": 10, "src": "assets/img/walker/arms.webp"}, "wave": {"n": 40, "src": "assets/img/walker/wave.webp"}, "flip": {"n": 9, "src": "assets/img/walker/flip.webp"}}};

@@ -2,7 +2,7 @@
 // visitor location, member points, and the page chrome (nav, footer, avatar dock).
 import cfg from './config.js';
 import { seed, TIERS } from './seed.js';
-import { mountAvatar } from './avatar.js';
+import { mountWalker } from './walker.js';
 
 export const demo = !(cfg.firebase && cfg.firebase.apiKey);
 export { cfg, TIERS };
@@ -224,11 +224,8 @@ export async function boot(page) {
     <a class="powered" href="https://www.illyrobotic-ai.com/" target="_blank" rel="noopener"><img src="assets/img/brand/illy-robotic.png" alt="" width="22" height="22" loading="lazy"><span>Powered by <b>ILLY ROBOTIC INSTRUMENTS</b></span></a>`;
   document.body.appendChild(foot);
 
-  // Avatar dock (fixed to the side, reacts to scroll + clicks)
-  if (!document.body.hasAttribute('data-noavatar')) {
-    const dock = document.createElement('div'); dock.className = 'av-dock'; dock.setAttribute('aria-hidden', 'true'); document.body.appendChild(dock);
-    mountAvatar(dock, { reactive: true });
-  }
+  // Armani struts along the bottom of the page and strikes poses (reacts to taps + scroll)
+  if (!document.body.hasAttribute('data-noavatar')) mountWalker();
 
   const btn = $('#authbtn');
   if (demo) btn.hidden = true;

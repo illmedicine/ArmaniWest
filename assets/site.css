@@ -118,13 +118,19 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .powered{display:flex;width:max-content;max-width:100%;margin:10px auto 0;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--mute);font-size:12px;letter-spacing:.02em;transition:color .2s,border-color .2s}
 .powered img{width:22px;height:22px;border-radius:5px;flex:none}.powered b{font-weight:700;letter-spacing:.06em}
 .powered:hover,.powered:focus-visible{color:#ffa855;border-color:#ffa855}
-@media(max-width:900px){body:has(.av-dock) .foot{padding-bottom:150px}}
+/* Walking Armani: a cut-out from her video that struts along the bottom edge */
+.walker{--wk-h:230px;position:fixed;left:0;bottom:0;height:var(--wk-h);z-index:30;pointer-events:none;opacity:0;transition:opacity .6s;will-change:transform}
+.walker.on{opacity:1}
+.wk-fig{position:absolute;inset:0;background-repeat:no-repeat;scale:var(--dir,1) 1;rotate:var(--lean,0deg);transform-origin:50% 100%;transition:rotate .25s;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.wk-shadow{position:absolute;left:18%;right:18%;bottom:-3px;height:14px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent)}
+body:has(.walker) .foot{padding-bottom:250px}
+@media(max-width:900px){.walker{--wk-h:150px}body:has(.walker) .foot{padding-bottom:165px}}
+@media print{.walker{display:none}}
 .consent{position:fixed;left:16px;bottom:16px;z-index:70;max-width:460px;background:#15151d;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.6)}.consent p{margin:0 0 12px;font-size:14px}.consent a{color:var(--teal);text-decoration:underline}
 .toast{position:fixed;left:50%;top:72px;transform:translate(-50%,-20px);background:var(--teal);color:#041;font-weight:700;padding:10px 18px;border-radius:99px;opacity:0;transition:.3s;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
 .livebanner{background:var(--pink);text-align:center;padding:10px;font-weight:700}
 
 /* avatar */
-.av-dock{--av-size:150px;--lean:0deg;position:fixed;right:10px;bottom:0;width:var(--av-size);z-index:30;pointer-events:none;transform:rotate(var(--lean));transform-origin:50% 100%;transition:transform .3s}
 .av-hero{--av-size:min(360px,80%);width:var(--av-size);margin:0 auto}
 .aw-av{width:100%;height:auto;display:block;overflow:visible;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
 .aw-av [data-part="all"]{animation:breathe 3.2s ease-in-out infinite}
@@ -137,7 +143,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 
 @media(max-width:900px){.hero{grid-template-columns:1fr;min-height:0}.hero-ph{order:-1}.g3,.g4,.tiers{grid-template-columns:repeat(2,1fr)}.gallery{columns:2}.cols{columns:1}.chap{grid-template-columns:1fr;gap:8px}.foot-in{grid-template-columns:1fr}
   .burger{display:block}.nav nav{display:none;order:5;width:100%;margin:0}.nav.open nav{display:flex}.nav{flex-wrap:wrap}.nav-r{margin-left:0}
-  .av-dock{--av-size:92px}.evrow{grid-template-columns:70px 1fr}.evrow .btn{grid-column:2}.row{grid-template-columns:1fr}.cal .d{min-height:56px}.cal .ev{font-size:10px}}
+  .evrow{grid-template-columns:70px 1fr}.evrow .btn{grid-column:2}.row{grid-template-columns:1fr}.cal .d{min-height:56px}.cal .ev{font-size:10px}}
 @media(max-width:520px){.g2,.g3,.g4,.tiers{grid-template-columns:1fr}.board li{grid-template-columns:36px 1fr auto}.board .tier{display:none}}
 
 /* 3D turnaround viewer + merch filters */
