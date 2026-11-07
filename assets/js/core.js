@@ -240,14 +240,14 @@ export async function boot(page) {
   document.body.dataset.page = page;
   let here = location.pathname.split('/').pop() || 'index.html'; if (here.startsWith('merch')) here = 'merch.html';
   const head = document.createElement('header'); head.className = 'nav';
-  head.innerHTML = `<a href="index.html" class="brand"><img src="assets/img/crest-96.png" alt="" width="38" height="38">ARMANI<span>WEST</span></a>
+  head.innerHTML = `<a href="index.html" class="brand"><img src="assets/img/shield-96.png" alt="" width="38" height="38">ARMANI<span>WEST</span></a>
     <button class="burger" aria-label="Menu" aria-expanded="false">☰</button>
     <nav>${NAV.map(([h, t]) => `<a href="${h}" ${h === here ? 'class="on"' : ''}>${t}</a>`).join('')}</nav>
     <div class="nav-r"><span class="pill" id="livepill" hidden></span><button class="btn sm" id="authbtn">Join / Sign in</button></div>`;
   document.body.prepend(head);
   head.querySelector('.burger').onclick = e => { const o = head.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', o); };
   const foot = document.createElement('footer'); foot.className = 'foot';
-  foot.innerHTML = `<div class="foot-in"><div><img class="foot-crest" src="assets/img/crest-192.png" alt="Armani West crest" loading="lazy"><b class="brand">ARMANI<span>WEST</span></b><p>Official home. Los Angeles.</p></div>
+  foot.innerHTML = `<div class="foot-in"><div><img class="foot-crest" src="assets/img/shield-192.png" alt="Armani West crest" loading="lazy"><b class="brand">ARMANI<span>WEST</span></b><p>Official home. Los Angeles.</p></div>
     <div class="foot-links">${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}<a href="privacy.html">Privacy</a><a href="admin.html">Portal</a></div>
     <div class="foot-soc"><a href="https://instagram.com/armaniwesttt" target="_blank" rel="noopener">IG</a><a href="https://snapchat.com/add/armaniwesttt" target="_blank" rel="noopener">SNAP</a><a href="https://tiktok.com/@armaniwestt" target="_blank" rel="noopener">TT</a><a href="https://youtube.com/@armaniwestt" target="_blank" rel="noopener">YT</a><a href="https://twitch.tv/${cfg.twitchChannel}" target="_blank" rel="noopener">TWITCH</a></div></div>
     <p class="fine">&copy; ${new Date().getFullYear()} Armani West.</p>
